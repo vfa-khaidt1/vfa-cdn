@@ -16,7 +16,7 @@ flowchart LR
         LSlot["Left Slot
             (measure if rotation=Right)"]
         RSlot["Right Slot
-            (measure if rotation=Left,\nrotate if rotation=Right)"]
+            (measure if rotation=Left, rotate if rotation=Right)"]
         MSlot["Middle Slot (pan)"]
     end
 
