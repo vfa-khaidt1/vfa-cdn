@@ -91,30 +91,6 @@ classDiagram
         +Zoom(...): void
     }
 
-    class InputState {
-        <<interface>>
-        + Id() string
-        + OnEnter(manager : MouseCommandManager)
-        + OnExit(manager : MouseCommandManager)
-    }
-
-    class NormalState {
-        + Id() string
-        + OnEnter(manager)
-        + OnExit(manager)
-    }
-
-    class MeasurementState {
-        + Id() string
-        + OnEnter(manager)
-        + OnExit(manager)
-    }
-
-    class MouseInputStateMachine {
-        - currentState : InputState*
-        - MouseCommandManager* cmdManager
-        + SetMode(modeId : string)
-    }
 
     ICommand <|.. DistanceMeasureCommand
     ICommand <|.. ViewNavigationCommand
@@ -123,10 +99,4 @@ classDiagram
     ScreenEventHandler --> MouseCommandManager : dispatches events
     MouseCommandManager --> ICommand : per-button slots
     ViewNavigationCommand --> Camera : drives
-
-    InputState <|.. NormalState
-    InputState <|.. MeasurementState
-
-    MouseInputStateMachine --> InputState : holds currentMode
-    MouseInputStateMachine --> MouseCommandManager : rebinds slots
 ```
