@@ -137,19 +137,23 @@ classDiagram
 ```mermaid
 flowchart TD
     A([Mouse Event Received]) --> B{Event Type?}
+
     B -->|MouseDown| C[Save Mouse Position]
     C --> D[isPossibleClick = TRUE]
-    D --> E[onMouseDown()]
-    B -->|MouseMove| F[Calculate travel distance "d"]
+    D --> E[onMouseDown]
+
+    B -->|MouseMove| F[Calculate travel distance d]
     F --> G{d > Threshold?}
-    G -->|Yes (Drag)| H[isPossibleClick = FALSE]
+    G -->|Yes Drag| H[isPossibleClick = FALSE]
     H --> I[Update camera: Rotate View]
-    G -->|No| J[onMouseMove()]
+    G -->|No| J[onMouseMove]
     J --> K[Rubber Banding]
+
     B -->|MouseUp| L{isPossibleClick?}
-    L -->|TRUE (Click)| M[onMouseUp()]
+    L -->|TRUE Click| M[onMouseUp]
     M --> N[Take measurements]
-    L -->|FALSE (End Drag)| O[Stop Camera Rotation]
+    L -->|FALSE End Drag| O[Stop Camera Rotation]
+
 
 ```
 
