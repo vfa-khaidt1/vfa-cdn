@@ -4,20 +4,16 @@ flowchart LR
         Raw["Emscripten Mouse Events"]
     end
 
-    Raw --> Router["ScreenEventHandler
-        (click/drag threshold, per-button routing)"]
+    Raw --> Router["ScreenEventHandler"]
 
     subgraph Core["Core Input Layer"]
-        Router --> CM["MouseCommandManager
-            (per-button slots)"]
+        Router --> CM["MouseCommandManager"]
     end
 
     subgraph Slots["Command Slots"]
-        LSlot["Left Slot
-            (measure if rotation=Right)"]
-        RSlot["Right Slot
-            (measure if rotation=Left, rotate if rotation=Right)"]
-        MSlot["Middle Slot (pan)"]
+        LSlot["Left Slot"]
+        RSlot["Right Slot"]
+        MSlot["Middle Slot"]
     end
 
     CM --> LSlot
@@ -26,15 +22,15 @@ flowchart LR
 
     subgraph Commands["Concrete Commands"]
         DMC["DistanceMeasureCommand"]
-        VNC["ViewNavigationCommand"]
+        RNC["RotationNavigationCommand"]
         AMC["AreaMeasureCommand"]
+        WNC["WheelNavigationCommand"]
     end
 
     LSlot --> DMC
-    RSlot --> VNC
-    MSlot --> VNC
+    RSlot --> RNC
+    MSlot --> WNC
     LSlot --> AMC
-    RSlot --> AMC
 
 ```
 
