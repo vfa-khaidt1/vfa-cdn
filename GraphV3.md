@@ -59,6 +59,7 @@ classDiagram
     }
 
     class MouseCommandManager {
+        -App* _app
         -unordered_map<MouseButton,CommandPtr,MouseButtonHash> _slots
         +BindCommand(button, command): bool
         +UnbindCommand(button): void
@@ -81,18 +82,6 @@ classDiagram
         -App* _app
     }
 
-    class App {
-        -unique_ptr<MouseCommandManager> _commandManager
-        -shared_ptr<DistanceMeasureCommand> _distanceMeasureCommand
-        -shared_ptr<ViewNavigationCommand> _viewNavigationCommand
-        -AppSettings _settings
-        +StartDistanceMeasureCommand(): bool
-        +CancelActiveCommand(): bool
-        +GetRotationMouseButton(): MouseButton
-        +ToggleRotationMouseButton(): MouseButton
-        +PickNearestPoint(x,y): optional~Result~
-    }
-
     class Camera {
         +Rotate(dx,dy): void
         +Pan(dx,dy): void
@@ -103,12 +92,7 @@ classDiagram
     MouseCommand <|.. ViewNavigationCommand
 
     ScreenEventHandler --> MouseCommandManager : dispatches events
-
-
     MouseCommandManager --> MouseCommand : per-button slots
-    App --> DistanceMeasureCommand : creates/binds
-    App --> ViewNavigationCommand : creates/binds
     ViewNavigationCommand --> Camera : drives
-    DistanceMeasureCommand --> App : uses pick helper
 
 ```
