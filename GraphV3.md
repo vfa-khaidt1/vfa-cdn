@@ -134,6 +134,7 @@ classDiagram
     PanNavigationCommand --> Camera : drives
 ```
 
+```mermaid
 flowchart TD
     A([Mouse Event Received]) --> B{Event Type?}
 
@@ -155,6 +156,6 @@ flowchart TD
     L -->|TRUE (Click)| M[onMouseUp()]
     M --> N[Take measurements]
     L -->|FALSE (End Drag)| O[Stop Camera Rotation]
-
+```
 
 
