@@ -94,37 +94,30 @@ classDiagram
         +Zoom(...): void
     }
 
-        class InputMode {
+    class InputMode {
         <<interface>>
         + Id() string
-        + BuildDefaultProfile(profile : MouseBindingProfile)
-        + OnEnter(manager : MouseCommandManager, factory : MouseCommandFactory)
+        + OnEnter(manager : MouseCommandManager)
         + OnExit(manager : MouseCommandManager)
     }
 
     class NormalMode {
         + Id() string
-        + BuildDefaultProfile(profile : MouseBindingProfile)
-        + OnEnter(manager, factory)
+        + OnEnter(manager)
         + OnExit(manager)
     }
 
     class MeasurementMode {
         + Id() string
-        + BuildDefaultProfile(profile : MouseBindingProfile)
-        + OnEnter(manager, factory)
+        + OnEnter(manager)
         + OnExit(manager)
     }
 
     class InputModeManager {
         - currentMode : InputMode*
         - MouseCommandManager* cmdManager
-        - MouseCommandFactory* factory
-        - defaultProfiles : map(string, MouseBindingProfile)  "modeId -> defaults"
-        - userOverrides : map(string, MouseBindingProfile)    "modeId -> overrides"
         + SetMode(modeId : string)
         + SetUserBinding(modeId : string, button : MouseButton, commandName : string)
-        + ApplyBindingsFor(modeId : string)
     }
 
     ICommand <|.. DistanceMeasureCommand
@@ -140,8 +133,6 @@ classDiagram
 
     InputModeManager --> InputMode : holds currentMode
     InputModeManager --> MouseCommandManager : rebinds slots
-    InputModeManager --> MouseCommandFactory : creates commands
-    InputModeManager --> MouseBindingProfile : default + overrides
 ```
 
 ```mermaid
