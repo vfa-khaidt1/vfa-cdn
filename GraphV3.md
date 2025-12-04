@@ -106,7 +106,6 @@ classDiagram
 
 
     MouseCommandManager --> MouseCommand : per-button slots
-    App --> MouseCommandManager : owns
     App --> DistanceMeasureCommand : creates/binds
     App --> ViewNavigationCommand : creates/binds
     ViewNavigationCommand --> Camera : drives
