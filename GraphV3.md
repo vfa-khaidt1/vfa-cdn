@@ -143,15 +143,15 @@ flowchart LR
     %% === Core input layer ===
     subgraph Core["Core Input Layer"]
         Handler --> CM["MouseCommandManager"]
-        MIM["MouseInputModeManager"]
+        MIM["MouseInputStateMachine"]
     end
 
     MIM --> CM
 
     %% === Modes / state machine ===
     subgraph Modes["Input Modes (state machine)"]
-        Normal["NormalMode"]
-        Measure["MeasurementMode"]
+        Normal["NormaState"]
+        Measure["MeasurementState"]
     end
 
     MIM --> Normal
@@ -175,13 +175,13 @@ flowchart LR
         VNC["ViewNavigationCommand (Rotate/Pan/Zoom)"]
     end
 
-    %% Normal mode: view navigation on right/middle
+    %% Normal state: view navigation on right/middle
     Normal -.binds.-> RSlot
     Normal -.binds.-> MSlot
     RSlot -.uses.-> VNC
     MSlot -.uses.-> VNC
 
-    %% Measurement mode: rebind to measurement commands
+    %% Measurement state: rebind to measurement commands
     Measure -.rebinds.-> RSlot
     Measure -.rebinds.-> LSlot
     RSlot -.may use.-> DMC
