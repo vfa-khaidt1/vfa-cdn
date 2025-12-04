@@ -1,3 +1,29 @@
+
+
+**CommandPattern:**
+- Main Pattern to store active commands of left/right/middle
+- We may need to combine with StateMachine and En 
+
+**State Machine:**
+=> Use to store state of each command : 
+For example distance measurement: 
+```mermaid
+flowchart TD
+    A(Prepare) -->|Get money| B(Picked Point 1)
+    B --> C(Picked Point 2)
+    C --> X(End)
+    Z[AnyState] --> |Cancel| X(End)
+```
+
+**View command vs Command**
+- What is the different? Is View is Pan and rotate?
+=> Right now we treated the same
+
+**Middle Mouse Scroll:**
+- Dont have interface like click action?
+  => need to create a separated Command.
+
+**Temporary Chart**
 ```mermaid
 flowchart LR
     subgraph Input["Browser Canvas"]
@@ -32,20 +58,6 @@ flowchart LR
     MSlot --> PNC
     LSlot --> AMC
 ```
-
-State Machine:
-We can use state machine to decide Command for left/right/middle mouse
-
-Event Dispatcher:
-...
-
-View command vs Command
-- What is the different? Is View is Pan and rotate?
-=> Right now we treated the same
-
-Middle Mouse Scroll:
-- Dont have interface like click action?
-  => need to create a separated Command.
 
 ```mermaid
 classDiagram
