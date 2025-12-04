@@ -33,6 +33,12 @@ flowchart LR
     LSlot --> AMC
 ```
 
+State Machine:
+We can use state machine to decide Command for left/right/middle mouse
+
+Event Dispatcher:
+...
+
 ```mermaid
 classDiagram
     class ScreenEventHandler {
