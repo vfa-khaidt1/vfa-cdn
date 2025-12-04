@@ -9,7 +9,7 @@
 For example distance measurement: 
 ```mermaid
 flowchart TD
-    A(Prepare) -->|Get money| B(Picked Point 1)
+    A(Prepare) --> B(Picked Point 1)
     B --> C(Picked Point 2)
     C --> X(End)
     Z[AnyState] --> |Cancel| X(End)
