@@ -32,72 +32,15 @@ flowchart LR
     LSlot --> AMC
     RSlot --> VRC
 
-
 ```mermaid
 classDiagram
-    class MouseEvent {
-        +MouseEventType type
-        +MouseButton button
-        +double x
-        +double y
-    }
+  class MouseEvent {
+    +type : MouseEventType
+    +button : MouseButton
+    +x : double
+    +y : double
+  }
 
-    class ICommand {
-        <<interface>>
-        +onStart()
-        +onMouseDown(MouseEvent e)
-        +onMouseMove(MouseEvent e)
-        +onMouseUp(MouseEvent e)
-        +onCancel()
-        +bool isFinished()
-        +const char* name()
-    }
-
-    class DistanceMeasureCommand {
-        -bool hasFirstPoint
-        -bool finished
-        -double startX, startY
-        -double endX, endY
-        +onStart()
-        +onMouseDown(MouseEvent e)
-        +onMouseMove(MouseEvent e)
-        +onMouseUp(MouseEvent e)
-        +onCancel()
-        +bool isFinished()
-        +const char* name()
-    }
-
-    class ViewRotateCommand {
-        -bool rotating
-        -double lastX, lastY
-        +onStart()
-        +onMouseDown(MouseEvent e)
-        +onMouseMove(MouseEvent e)
-        +onMouseUp(MouseEvent e)
-        +onCancel()
-        +bool isFinished()
-        +const char* name()
-    }
-
-    class CommandManager {
-        -unique_ptr~ICommand~ leftCommand
-        -unique_ptr~ICommand~ rightCommand
-        -unique_ptr~ICommand~ middleCommand
-        +setActiveCommand(MouseButton, unique_ptr~ICommand~)
-        +handleMouseDown(MouseEvent e)
-        +handleMouseMove(MouseEvent e)
-        +handleMouseUp(MouseEvent e)
-    }
-
-    class MouseInputRouter {
-        -CommandManager& commandManager
-        +handleRawEvent(MouseEvent e)
-    }
-
-    ICommand <|.. DistanceMeasureCommand
-    ICommand <|.. ViewRotateCommand
-    MouseInputRouter --> CommandManager
-    CommandManager --> ICommand
 
 ```mermaid
 sequenceDiagram
