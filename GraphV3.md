@@ -71,12 +71,12 @@ classDiagram
         -App* _app
         -vec3~ _startWorld
         -vec3~ _endWorld
-        +measure : void
+        +Measure(): void
     }
 
     class AreaMeasureCommand {
         -App* _app
-        +measure : void
+        +Measure() : void
     }
 
     class PanNavigationCommand {
