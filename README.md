@@ -136,3 +136,24 @@ sequenceDiagram
         CM->>LCmd: onMouseUp()
     end
 ```
+
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+
+  Idle --> ViewDraggingRight: MouseDown (Right)
+  ViewDraggingRight --> Idle: MouseUp (Right)
+
+  Idle --> CommandActiveLeft: MouseDown (Left)
+  CommandActiveLeft --> Idle: MouseUp (Left)\nOR command finished
+
+  state CommandActiveLeft {
+    [*] --> CmdIdle
+
+    CmdIdle --> FirstPointSelected: Left click\n(set first point)
+    FirstPointSelected --> Completed: Left click\n(set second point)
+
+    FirstPointSelected --> CmdIdle: Cancel / ESC
+    Completed --> CmdIdle: Reactivate\n(onStart)
+  }
+```
