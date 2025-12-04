@@ -94,7 +94,7 @@ classDiagram
         +Zoom(...): void
     }
 
-    class InputMode {
+    class IInputMode {
         <<interface>>
         + Id() string
         + OnEnter(manager : MouseCommandManager)
