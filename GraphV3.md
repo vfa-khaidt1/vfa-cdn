@@ -104,55 +104,6 @@ classDiagram
 ```
 
 ```mermaid
-flowchart LR
-    subgraph Input["Browser Canvas"]
-        Raw["Emscripten Mouse Events"]
-    end
-
-    Raw --> Router["ScreenEventHandler"]
-
-    subgraph Core["Core Input Layer"]
-        Router --> CM["MouseCommandManager"]
-    end
-
-    subgraph Slots["Command Slots"]
-        LSlot["Left Mouse Slot"]
-        RSlot["Right Mouse Slot"]
-        MSlot["Middle Mouse Slot"]
-    end
-
-    CM --> LSlot
-    CM --> RSlot
-    CM --> MSlot
-
-    subgraph Commands["Concrete Commands"]
-        DMC["DistanceMeasureCommand"]
-        RNC["RotationNavigationCommand"]
-        AMC["AreaMeasureCommand"]
-        PNC["PanNavigationCommand"]
-    end
-
-    LSlot --> DMC
-    LSlot --> AMC
-    RSlot --> RNC
-    MSlot --> PNC
-
-    %% --- New: Binding / Settings path ---
-
-    subgraph Binding["Mouse Binding UI / Settings"]
-        Settings["Mouse Settings Panel"]
-        Profile["MouseBindingProfile (saved config)"]
-    end
-
-    Settings -->|user chooses button + command| CM
-    Profile -->|ApplyProfile()| CM
-
-    CM -->|BindCommand(Left, DistanceMeasure)| LSlot
-    CM -->|BindCommand(Right, RotationNav)| RSlot
-    CM -->|BindCommand(Middle, PanNav)| MSlot
-```
-
-```mermaid
 classDiagram
     class ScreenEventHandler {
         -PointerState _pointerState
@@ -236,4 +187,132 @@ classDiagram
     MouseCommandManager --> MouseCommandFactory : creates commands
     MouseCommandManager --> MouseButton
     ViewNavigationCommand --> Camera : drives
+```
+
+```mermaid
+classDiagram
+    class ScreenEventHandler {
+        - pointerState
+        - Camera* camera
+        - App* app
+        - MouseCommandManager* commandManager
+        + onMouseDown(event)
+        + onMouseMove(event)
+        + onMouseUp(event)
+    }
+
+    class MouseButton {
+        <<enum>>
+        Left
+        Right
+        Middle
+    }
+
+    class MouseCommand {
+        <<interface>>
+        + Name() const : string
+        + OnStart()
+        + OnEnd()
+        + OnCancel()
+        + OnMouseDown(event) bool
+        + OnMouseMove(event) bool
+        + OnMouseUp(event) bool
+    }
+
+    class MouseCommandManager {
+        - App* app
+        - MouseCommand* leftCommand
+        - MouseCommand* rightCommand
+        - MouseCommand* middleCommand
+        + BindCommand(button : MouseButton, cmd : MouseCommand*)
+        + UnbindCommand(button : MouseButton)
+        + CancelAll()
+        + DispatchMouseDown(event) bool
+        + DispatchMouseMove(event) bool
+        + DispatchMouseUp(event) bool
+        + GetCommand(button : MouseButton) MouseCommand*
+    }
+
+    class MouseCommandFactory {
+        + Create(commandName : string, app : App*, camera : Camera*) MouseCommand*
+    }
+
+    class MouseBindingProfile {
+        - bindings : map(MouseButton,string)  "button -> commandName"
+        + Get(button : MouseButton) string
+        + Set(button : MouseButton, commandName : string)
+    }
+
+    class InputMode {
+        <<interface>>
+        + Id() string
+        + BuildDefaultProfile(profile : MouseBindingProfile)
+        + OnEnter(manager : MouseCommandManager, factory : MouseCommandFactory)
+        + OnExit(manager : MouseCommandManager)
+    }
+
+    class NormalMode {
+        + Id() string
+        + BuildDefaultProfile(profile : MouseBindingProfile)
+        + OnEnter(manager, factory)
+        + OnExit(manager)
+    }
+
+    class MeasurementMode {
+        + Id() string
+        + BuildDefaultProfile(profile : MouseBindingProfile)
+        + OnEnter(manager, factory)
+        + OnExit(manager)
+    }
+
+    class InputModeManager {
+        - currentMode : InputMode*
+        - MouseCommandManager* cmdManager
+        - MouseCommandFactory* factory
+        - defaultProfiles : map(string, MouseBindingProfile)  "modeId -> defaults"
+        - userOverrides : map(string, MouseBindingProfile)    "modeId -> overrides"
+        + SetMode(modeId : string)
+        + SetUserBinding(modeId : string, button : MouseButton, commandName : string)
+        + ApplyBindingsFor(modeId : string)
+    }
+
+    class DistanceMeasureCommand {
+        - App* app
+        - startWorld
+        - lastMeasurement
+    }
+
+    class RotationNavigationCommand {
+        - Camera* camera
+        - App* app
+    }
+
+    class PanNavigationCommand {
+        - Camera* camera
+        - App* app
+    }
+
+    class AreaMeasureCommand {
+        - App* app
+    }
+
+    class Camera {
+        + Rotate(dx,dy)
+        + Pan(dx,dy)
+        + Zoom(...)
+    }
+
+    ScreenEventHandler --> MouseCommandManager : dispatches events
+    MouseCommand <|.. DistanceMeasureCommand
+    MouseCommand <|.. RotationNavigationCommand
+    MouseCommand <|.. PanNavigationCommand
+    MouseCommand <|.. AreaMeasureCommand
+
+    InputMode <|.. NormalMode
+    InputMode <|.. MeasurementMode
+
+    InputModeManager --> InputMode : holds currentMode
+    InputModeManager --> MouseCommandManager : rebinds slots
+    InputModeManager --> MouseCommandFactory : creates commands
+    InputModeManager --> MouseBindingProfile : default + overrides
 ```
