@@ -99,11 +99,6 @@ classDiagram
         +Zoom(...): void
     }
 
-    class AppSettings {
-        +RotationMouseButton(): MouseButton
-        +ToggleRotationMouseButton(): void
-    }
-
     MouseCommand <|.. DistanceMeasureCommand
     MouseCommand <|.. ViewNavigationCommand
 
@@ -114,7 +109,6 @@ classDiagram
     App --> MouseCommandManager : owns
     App --> DistanceMeasureCommand : creates/binds
     App --> ViewNavigationCommand : creates/binds
-    App --> AppSettings : rotation button preference
     ViewNavigationCommand --> Camera : drives
     DistanceMeasureCommand --> App : uses pick helper
 
