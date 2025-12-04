@@ -103,5 +103,6 @@ classDiagram
 
     ScreenEventHandler --> MouseCommandManager : dispatches events
     MouseCommandManager --> ICommand : per-button slots
-    ViewNavigationCommand --> Camera : drives
+    RotateNavigationCommand --> Camera : drives
+    PanNavigationCommand --> Camera : drives
 ```
