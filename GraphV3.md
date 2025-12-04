@@ -94,6 +94,39 @@ classDiagram
         +Zoom(...): void
     }
 
+        class InputMode {
+        <<interface>>
+        + Id() string
+        + BuildDefaultProfile(profile : MouseBindingProfile)
+        + OnEnter(manager : MouseCommandManager, factory : MouseCommandFactory)
+        + OnExit(manager : MouseCommandManager)
+    }
+
+    class NormalMode {
+        + Id() string
+        + BuildDefaultProfile(profile : MouseBindingProfile)
+        + OnEnter(manager, factory)
+        + OnExit(manager)
+    }
+
+    class MeasurementMode {
+        + Id() string
+        + BuildDefaultProfile(profile : MouseBindingProfile)
+        + OnEnter(manager, factory)
+        + OnExit(manager)
+    }
+
+    class InputModeManager {
+        - currentMode : InputMode*
+        - MouseCommandManager* cmdManager
+        - MouseCommandFactory* factory
+        - defaultProfiles : map(string, MouseBindingProfile)  "modeId -> defaults"
+        - userOverrides : map(string, MouseBindingProfile)    "modeId -> overrides"
+        + SetMode(modeId : string)
+        + SetUserBinding(modeId : string, button : MouseButton, commandName : string)
+        + ApplyBindingsFor(modeId : string)
+    }
+
     ICommand <|.. DistanceMeasureCommand
     ICommand <|.. ViewNavigationCommand
     ICommand <|.. AreaMeasureCommand
@@ -101,6 +134,14 @@ classDiagram
     ScreenEventHandler --> MouseCommandManager : dispatches events
     MouseCommandManager --> ICommand : per-button slots
     ViewNavigationCommand --> Camera : drives
+
+    InputMode <|.. NormalMode
+    InputMode <|.. MeasurementMode
+
+    InputModeManager --> InputMode : holds currentMode
+    InputModeManager --> MouseCommandManager : rebinds slots
+    InputModeManager --> MouseCommandFactory : creates commands
+    InputModeManager --> MouseBindingProfile : default + overrides
 ```
 
 ```mermaid
