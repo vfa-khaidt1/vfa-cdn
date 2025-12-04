@@ -110,8 +110,8 @@ classDiagram
         + OnExit(manager)
     }
 
-    class MouseInputModeStateMachine {
-        - currentMode : InputMode*
+    class MouseInputStateMachine {
+        - currentState : InputState*
         - MouseCommandManager* cmdManager
         + SetMode(modeId : string)
     }
@@ -127,8 +127,8 @@ classDiagram
     InputState <|.. NormalState
     InputState <|.. MeasurementState
 
-    MouseInputModeStateMachine --> InputState : holds currentMode
-    MouseInputModeStateMachine --> MouseCommandManager : rebinds slots
+    MouseInputStateMachine --> InputState : holds currentMode
+    MouseInputStateMachine --> MouseCommandManager : rebinds slots
 ```
 
 ```mermaid
