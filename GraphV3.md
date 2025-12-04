@@ -110,7 +110,7 @@ classDiagram
         + OnExit(manager)
     }
 
-    class InputModeManager {
+    class MouseInputModeManager {
         - currentMode : InputMode*
         - MouseCommandManager* cmdManager
         + SetMode(modeId : string)
