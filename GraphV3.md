@@ -31,9 +31,7 @@ flowchart LR
     RSlot --> RNC
     MSlot --> PNC
     LSlot --> AMC
-
 ```
-
 
 ```mermaid
 classDiagram
@@ -103,9 +101,7 @@ classDiagram
     ScreenEventHandler --> MouseCommandManager : dispatches events
     MouseCommandManager --> ICommand : per-button slots
     ViewNavigationCommand --> Camera : drives
-
 ```
-
 
 ```mermaid
 flowchart LR
