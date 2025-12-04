@@ -47,7 +47,7 @@ classDiagram
         +onMouseUp(...)
     }
 
-    class MouseCommand {
+    class ICommand {
         <<interface>>
         +Name() const : const char*
         +OnStart()
@@ -69,7 +69,7 @@ classDiagram
         +DispatchMouseDown(event): bool
         +DispatchMouseMove(event): bool
         +DispatchMouseUp(event): bool
-        +GetCommand(button): CommandPtr
+        +GetCommand(button): ICommand
     }
 
     class DistanceMeasureCommand {
