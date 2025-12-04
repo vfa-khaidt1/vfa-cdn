@@ -60,7 +60,9 @@ classDiagram
 
     class MouseCommandManager {
         -App* _app
-        -unordered_map<MouseButton,CommandPtr,MouseButtonHash> _slots
+        -unique_ptr~ICommand~ leftCommand
+        -unique_ptr~ICommand~ rightCommand
+        -unique_ptr~ICommand~ middleCommand
         +BindCommand(button, command): bool
         +UnbindCommand(button): void
         +CancelAll(): void
