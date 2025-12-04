@@ -9,13 +9,17 @@ flowchart LR
     Raw --> MIR["MouseInputRouter"]
 
     subgraph Core["Core Input Layer"]
-        MIR --> CM["CommandManager\n (per-button slots)"]
+        MIR --> CM["CommandManager
+                    (per-button slots)"]
     end
 
     subgraph Slots["Command Slots"]
-        LSlot["LeftCommand\n (e.g. DistanceMeasureCommand)"]
-        RSlot["RightCommand\n (e.g. ViewRotateCommand)"]
-        MSlot["MiddleCommand\n (optional)"]
+        LSlot["LeftCommand
+        (e.g. DistanceMeasureCommand)"]
+        RSlot["RightCommand
+        (e.g. ViewRotateCommand)"]
+        MSlot["MiddleCommand
+        (optional)"]
     end
 
     CM --> LSlot
