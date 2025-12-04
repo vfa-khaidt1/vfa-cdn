@@ -64,6 +64,7 @@ classDiagram
 
     class MouseCommandManager {
         -App* _app
+        //Active commands for each mouse
         -unique_ptr~ICommand~ leftCommand
         -unique_ptr~ICommand~ rightCommand
         -unique_ptr~ICommand~ middleCommand
