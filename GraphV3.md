@@ -79,7 +79,12 @@ classDiagram
         +measure : void
     }
 
-    class ViewNavigationCommand {
+    class PanNavigationCommand {
+        -Camera* _camera
+        -App* _app
+    }
+
+    class RotateNavigationCommand {
         -Camera* _camera
         -App* _app
     }
@@ -92,8 +97,9 @@ classDiagram
 
 
     ICommand <|.. DistanceMeasureCommand
-    ICommand <|.. ViewNavigationCommand
     ICommand <|.. AreaMeasureCommand
+    ICommand <|.. RotateNavigationCommand
+    ICommand <|.. PanNavigationCommand
 
     ScreenEventHandler --> MouseCommandManager : dispatches events
     MouseCommandManager --> ICommand : per-button slots
