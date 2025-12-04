@@ -32,15 +32,6 @@ flowchart LR
     LSlot --> AMC
     RSlot --> VRC
 
-```mermaid
-classDiagram
-  class MouseEvent {
-    +type : MouseEventType
-    +button : MouseButton
-    +x : double
-    +y : double
-  }
-
 
 ```mermaid
 sequenceDiagram
