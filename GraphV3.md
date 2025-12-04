@@ -62,12 +62,9 @@ classDiagram
         -unique_ptr~ICommand~ rightCommand
         -unique_ptr~ICommand~ middleCommand
         +BindCommand(button, command): bool
-        +UnbindCommand(button): void
-        +CancelAll(): void
         +DispatchMouseDown(event): bool
         +DispatchMouseMove(event): bool
         +DispatchMouseUp(event): bool
-        +GetCommand(button): ICommand
     }
 
     class DistanceMeasureCommand {
