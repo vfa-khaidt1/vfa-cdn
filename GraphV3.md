@@ -11,9 +11,9 @@ flowchart LR
     end
 
     subgraph Slots["Command Slots"]
-        LSlot["Left Slot"]
-        RSlot["Right Slot"]
-        MSlot["Middle Slot"]
+        LSlot["Left Mouse Slot"]
+        RSlot["Right Mouse Slot"]
+        MSlot["Middle Mouse Slot"]
     end
 
     CM --> LSlot
