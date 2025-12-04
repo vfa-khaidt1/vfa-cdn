@@ -39,6 +39,14 @@ We can use state machine to decide Command for left/right/middle mouse
 Event Dispatcher:
 ...
 
+View command vs Command
+- What is the different? Is View is Pan and rotate?
+=> Right now we treated the same
+
+Middle Mouse Scroll:
+- Dont have interface like click action?
+  => need to create a separated Command.
+
 ```mermaid
 classDiagram
     class ScreenEventHandler {
