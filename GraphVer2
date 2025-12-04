@@ -1,0 +1,122 @@
+
+
+```mermaid
+flowchart LR
+    subgraph Input["Window / OS"]
+        Raw["Raw Mouse Events"]
+    end
+
+    subgraph Config["User Config / UI"]
+        UI["Mouse Binding UI"]
+    end
+
+    Raw --> MIR["MouseInputRouter"]
+
+    subgraph Core["Core Input Layer"]
+        MIR --> CM["CommandManager"]
+        UI --> CM
+    end
+
+    subgraph Slots["Command Slots"]
+        LSlot["LeftCommand Slot"]
+        RSlot["RightCommand Slot"]
+        MSlot["MiddleCommand Slot"]
+    end
+
+    CM --> LSlot
+    CM --> RSlot
+    CM --> MSlot
+
+    subgraph Commands["Concrete Commands"]
+        DMC["DistanceMeasureCommand"]
+        AMC["AreaMeasureCommand"]
+        VRC["ViewRotateCommand"]
+    end
+
+    %% possible bindings (conceptual)
+    LSlot -.-> DMC
+    LSlot -.-> AMC
+    RSlot -.-> VRC
+    MSlot -.-> DMC
+```
+
+```mermaid
+classDiagram
+    class MouseEvent {
+        +MouseEventType type
+        +MouseButton button
+        +double x
+        +double y
+    }
+
+    class ICommand {
+        <<interface>>
+        +onStart()
+        +onMouseDown(MouseEvent e)
+        +onMouseMove(MouseEvent e)
+        +onMouseUp(MouseEvent e)
+        +onCancel()
+        +bool isFinished()
+        +const char* name()
+    }
+
+    class DistanceMeasureCommand {
+        -bool hasFirstPoint
+        -bool finished
+        -double startX
+        -double startY
+        -double endX
+        -double endY
+        +onStart()
+        +onMouseDown(MouseEvent e)
+        +onMouseMove(MouseEvent e)
+        +onMouseUp(MouseEvent e)
+        +onCancel()
+        +bool isFinished()
+        +const char* name()
+    }
+
+    class ViewRotateCommand {
+        -bool rotating
+        -double lastX
+        -double lastY
+        +onStart()
+        +onMouseDown(MouseEvent e)
+        +onMouseMove(MouseEvent e)
+        +onMouseUp(MouseEvent e)
+        +onCancel()
+        +bool isFinished()
+        +const char* name()
+    }
+
+    class CommandManager {
+        -unique_ptr~ICommand~ leftCommand
+        -unique_ptr~ICommand~ rightCommand
+        -unique_ptr~ICommand~ middleCommand
+
+        +assignCommand(button: MouseButton, cmd: unique_ptr~ICommand~)
+        +handleMouseDown(e: MouseEvent)
+        +handleMouseMove(e: MouseEvent)
+        +handleMouseUp(e: MouseEvent)
+
+        %% optional helper
+        +ICommand* getCommandFor(e: MouseEvent)
+    }
+
+    class MouseInputRouter {
+        -CommandManager& commandManager
+        +handleRawEvent(e: MouseEvent)
+    }
+
+    class MouseBindingUI {
+        -CommandManager& commandManager
+        +onUserChangeBinding(button: MouseButton, commandName: string)
+    }
+
+    ICommand <|.. DistanceMeasureCommand
+    ICommand <|.. ViewRotateCommand
+
+    MouseInputRouter --> CommandManager
+    CommandManager --> ICommand
+    MouseBindingUI --> CommandManager
+```
