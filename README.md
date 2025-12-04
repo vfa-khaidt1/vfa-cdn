@@ -35,36 +35,30 @@ flowchart LR
 
 ```mermaid
 sequenceDiagram
-    participant OS as OS/Window
-    participant MIR as MouseInputRouter
-    participant CM as CommandManager
-    participant LCmd as LeftCommand\n(DistanceMeasureCommand)
-    participant RCmd as RightCommand\n(ViewRotateCommand)
+  participant OS
+  participant MIR as MouseInputRouter
+  participant CM as CommandManager
+  participant LCmd as LeftCommand
+  participant RCmd as RightCommand
 
-    Note over CM: Left slot = DistanceMeasure<br/>Right slot = ViewRotate
+  Note over CM: Left = DistanceMeasure, Right = ViewRotate
 
-    rect rgb(240,240,240)
-        Note over OS,RCmd: Right button drag = xoay view
-        OS->>MIR: MouseDown (Right)
-        MIR->>CM: handleMouseDown(Right)
-        CM->>RCmd: onMouseDown()
+  OS->>MIR: MouseDown (Right)
+  MIR->>CM: handleMouseDown(Right)
+  CM->>RCmd: onMouseDown()
 
-        OS->>MIR: MouseMove (Right)
-        MIR->>CM: handleMouseMove(Right)
-        CM->>RCmd: onMouseMove()
+  OS->>MIR: MouseMove (Right)
+  MIR->>CM: handleMouseMove(Right)
+  CM->>RCmd: onMouseMove()
 
-        OS->>MIR: MouseUp (Right)
-        MIR->>CM: handleMouseUp(Right)
-        CM->>RCmd: onMouseUp()
-    end
+  OS->>MIR: MouseUp (Right)
+  MIR->>CM: handleMouseUp(Right)
+  CM->>RCmd: onMouseUp()
 
-    rect rgb(230,250,230)
-        Note over OS,LCmd: Left click = đặt điểm đo
-        OS->>MIR: MouseDown (Left)
-        MIR->>CM: handleMouseDown(Left)
-        CM->>LCmd: onMouseDown()
+  OS->>MIR: MouseDown (Left)
+  MIR->>CM: handleMouseDown(Left)
+  CM->>LCmd: onMouseDown()
 
-        OS->>MIR: MouseUp (Left)
-        MIR->>CM: handleMouseUp(Left)
-        CM->>LCmd: onMouseUp()
-    end
+  OS->>MIR: MouseUp (Left)
+  MIR->>CM: handleMouseUp(Left)
+  CM->>LCmd: onMouseUp()
