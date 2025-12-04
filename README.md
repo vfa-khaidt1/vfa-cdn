@@ -1,3 +1,6 @@
+CHART:
+
+
 flowchart LR
     subgraph Input["Window / OS"]
         Raw["Raw Mouse Events"]
