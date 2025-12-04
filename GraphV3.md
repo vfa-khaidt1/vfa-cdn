@@ -91,26 +91,26 @@ classDiagram
         +Zoom(...): void
     }
 
-    class InputMode {
+    class InputState {
         <<interface>>
         + Id() string
         + OnEnter(manager : MouseCommandManager)
         + OnExit(manager : MouseCommandManager)
     }
 
-    class NormalMode {
+    class NormalState {
         + Id() string
         + OnEnter(manager)
         + OnExit(manager)
     }
 
-    class MeasurementMode {
+    class MeasurementState {
         + Id() string
         + OnEnter(manager)
         + OnExit(manager)
     }
 
-    class MouseInputModeManager {
+    class MouseInputModeStateMachine {
         - currentMode : InputMode*
         - MouseCommandManager* cmdManager
         + SetMode(modeId : string)
@@ -127,8 +127,8 @@ classDiagram
     InputMode <|.. NormalMode
     InputMode <|.. MeasurementMode
 
-    InputModeManager --> InputMode : holds currentMode
-    InputModeManager --> MouseCommandManager : rebinds slots
+    MouseInputModeStateMachine --> InputState : holds currentMode
+    MouseInputModeStateMachine --> MouseCommandManager : rebinds slots
 ```
 
 ```mermaid
