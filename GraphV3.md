@@ -124,8 +124,8 @@ classDiagram
     MouseCommandManager --> ICommand : per-button slots
     ViewNavigationCommand --> Camera : drives
 
-    InputMode <|.. NormalMode
-    InputMode <|.. MeasurementMode
+    InputState <|.. NormalState
+    InputState <|.. MeasurementState
 
     MouseInputModeStateMachine --> InputState : holds currentMode
     MouseInputModeStateMachine --> MouseCommandManager : rebinds slots
