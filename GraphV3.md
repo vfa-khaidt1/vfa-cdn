@@ -90,11 +90,11 @@ classDiagram
         +Zoom(...): void
     }
 
-    MouseCommand <|.. DistanceMeasureCommand
-    MouseCommand <|.. ViewNavigationCommand
+    ICommand <|.. DistanceMeasureCommand
+    ICommand <|.. ViewNavigationCommand
 
     ScreenEventHandler --> MouseCommandManager : dispatches events
-    MouseCommandManager --> MouseCommand : per-button slots
+    MouseCommandManager --> ICommand : per-button slots
     ViewNavigationCommand --> Camera : drives
 
 ```
