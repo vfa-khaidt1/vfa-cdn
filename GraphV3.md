@@ -108,8 +108,7 @@ classDiagram
     MouseCommand <|.. ViewNavigationCommand
 
     ScreenEventHandler --> MouseCommandManager : dispatches events
-    ScreenEventHandler --> Camera
-    ScreenEventHandler --> App
+
 
     MouseCommandManager --> MouseCommand : per-button slots
     App --> MouseCommandManager : owns
