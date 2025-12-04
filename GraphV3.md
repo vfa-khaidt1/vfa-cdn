@@ -94,7 +94,7 @@ classDiagram
         +Zoom(...): void
     }
 
-    class IInputMode {
+    class InputMode {
         <<interface>>
         + Id() string
         + OnEnter(manager : MouseCommandManager)
@@ -117,7 +117,6 @@ classDiagram
         - currentMode : InputMode*
         - MouseCommandManager* cmdManager
         + SetMode(modeId : string)
-        + SetUserBinding(modeId : string, button : MouseButton, commandName : string)
     }
 
     ICommand <|.. DistanceMeasureCommand
