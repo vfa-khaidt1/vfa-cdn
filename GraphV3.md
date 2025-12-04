@@ -15,15 +15,13 @@ flowchart TD
     Z[AnyState] --> |Cancel| X(End)
 ```
 
-**View command vs Command**
-- What is the different? Is View is Pan and rotate?
+**View operatation(rotate/ pan) vs Click operation**
 => Right now we treated the same
-
-**Middle Mouse Scroll:**
+**Middle Mouse Scroll**
 - Dont have interface like click action?
   => need to create a separated Command.
 
-**Temporary Chart**
+**Temporary Architecture Graph ( In Progress )**
 ```mermaid
 flowchart LR
     subgraph Input["Browser Canvas"]
@@ -133,6 +131,9 @@ classDiagram
     RotateNavigationCommand --> Camera : drives
     PanNavigationCommand --> Camera : drives
 ```
+
+
+**Implementing event routing for dragging and clicking ( In Progress )**
 
 ```mermaid
 flowchart TD
