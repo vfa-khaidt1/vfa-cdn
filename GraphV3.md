@@ -69,15 +69,14 @@ classDiagram
 
     class DistanceMeasureCommand {
         -App* _app
-        -optional~vec3~ _startWorld
-        -optional~Measurement~ _lastMeasurement
-        +measureButton() const : MouseButton
+        -vec3~ _startWorld
+        -vec3~ _endWorld
+        +measure : void
     }
 
     class AreaMeasureCommand {
         -App* _app
-        -optional~Measurement~ _lastMeasurement
-        +measureButton() const : MouseButton
+        +measure : void
     }
 
     class ViewNavigationCommand {
