@@ -24,12 +24,12 @@ flowchart LR
         DMC["DistanceMeasureCommand"]
         RNC["RotationNavigationCommand"]
         AMC["AreaMeasureCommand"]
-        WNC["WheelNavigationCommand"]
+        PNC["PanNavigationCommand"]
     end
 
     LSlot --> DMC
     RSlot --> RNC
-    MSlot --> WNC
+    MSlot --> PNC
     LSlot --> AMC
 
 ```
