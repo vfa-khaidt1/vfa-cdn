@@ -1,8 +1,8 @@
 
 
 **CommandPattern:**
-- Main Pattern to store active commands of left/right/middle
-- We may need to combine with StateMachine and En 
+- We will use CommandPattern for main Pattern to store active commands of left/right/middle
+- We may need to combine with StateMachine and Event Dispatcher 
 
 **State Machine:**
 => Use to store state of each command : 
@@ -133,3 +133,28 @@ classDiagram
     RotateNavigationCommand --> Camera : drives
     PanNavigationCommand --> Camera : drives
 ```
+
+flowchart TD
+    A([Mouse Event Received]) --> B{Event Type?}
+
+    %% MouseDown branch
+    B -->|MouseDown| C[Save Mouse Position]
+    C --> D[isPossibleClick = TRUE]
+    D --> E[onMouseDown()]
+
+    %% MouseMove branch
+    B -->|MouseMove| F[Calculate the travel distance "d"]
+    F --> G{d > Threshold?}
+    G -->|Yes (Drag)| H[isPossibleClick = FALSE]
+    H --> I[Update camera: Rotate View]
+    G -->|No| J[onMouseMove()]
+    J --> K[Rubber Banding]
+
+    %% MouseUp branch
+    B -->|MouseUp| L{isPossibleClick?}
+    L -->|TRUE (Click)| M[onMouseUp()]
+    M --> N[Take measurements]
+    L -->|FALSE (End Drag)| O[Stop Camera Rotation]
+
+
+
