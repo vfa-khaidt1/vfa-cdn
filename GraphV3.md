@@ -79,6 +79,12 @@ classDiagram
         +measureButton() const : MouseButton
     }
 
+    class AreaMeasureCommand {
+        -App* _app
+        -optional~Measurement~ _lastMeasurement
+        +measureButton() const : MouseButton
+    }
+
     class ViewNavigationCommand {
         -Camera* _camera
         -App* _app
@@ -92,6 +98,7 @@ classDiagram
 
     ICommand <|.. DistanceMeasureCommand
     ICommand <|.. ViewNavigationCommand
+    ICommand <|.. AreaMeasureCommand
 
     ScreenEventHandler --> MouseCommandManager : dispatches events
     MouseCommandManager --> ICommand : per-button slots
