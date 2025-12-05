@@ -5,6 +5,7 @@ classDiagram
         Left
         Right
         Middle
+        Any
     }
 
     class GestureType {
