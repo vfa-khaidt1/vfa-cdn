@@ -53,6 +53,7 @@ classDiagram
         +Name() const: const char*
         +CommandType() const: CommandType
         +GetMouseButton() const: MouseButton
+        +IsEnable const: bool
         +GetPriority() const: int // index
         +OnStart()
         +OnEnd()
@@ -65,13 +66,14 @@ classDiagram
 
 
     class MouseCommandManager {
-        -vector<ICommand> primaryCommands
-        -vector<ICommand> viewCommands
-        -vector<ICommand> helperCommands
+        -vector~ICommand~ primaryCommands
+        -vector~ICommand~ viewCommands
+        -vector~ICommand~ helperCommands
         +DispatchMouseDown(event): bool
         +DispatchMouseMove(event): bool
         +DispatchMouseUp(event): bool
         +DispatchWheel(event): bool
+        +PushCommand(CommandType, ICommand): bool
     }
 
     ScreenEventHandler --> GestureDetector
@@ -88,22 +90,21 @@ classDiagram
 flowchart TB
     Event[Mouse event for this button]
     End[End]
-    subgraph MouseButtonSlots
-        HelperSlot[Helper Command Slot - highest priority]
+    subgraph CommandList
+        FirstCommand
         Block1{Block?}
-        PrimarySlot[Primary Command Slot - middle priority]
+        SecondCommand
         Block2{Block?}
-        ViewSlot[View Command Slot - lowest priority]
-        
+        ThirdCommand
     end
 
 
     Event --> HelperSlot
-    HelperSlot -->Block1 --> |No| PrimarySlot
+    FirstCommand -->Block1 --> |No| SecondCommand
     Block1 --> |Yes| End
-    PrimarySlot -->Block2 --> |No| ViewSlot
+    SecondCommand -->Block2 --> |No| ThirdCommand
     Block2 --> |Yes| End
-    ViewSlot --> End
+    ThirdCommand --> End
 ```
 
 ```mermaid
