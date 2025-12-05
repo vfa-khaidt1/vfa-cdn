@@ -86,6 +86,27 @@ classDiagram
     MouseCommandManager --> ICommand
 ```
 
+```mermaid
+flowchart TB
+    Event[Mouse event for this button]
+    End[End]
+    subgraph MouseButtonSlots
+        HelperSlot[Helper Command Slot - highest priority]
+        Block1{Block?}
+        PrimarySlot[Primary Command Slot - middle priority]
+        Block2{Block?}
+        ViewSlot[View Command Slot - lowest priority]
+        
+    end
+
+
+    Event --> HelperSlot
+    HelperSlot -->Block1 --> |No| PrimarySlot
+    Block1 --> |Yes| End
+    PrimarySlot -->Block2 --> |No| ViewSlot
+    Block2 --> |Yes| End
+    ViewSlot --> End
+```
 
 ```mermaid
 classDiagram
