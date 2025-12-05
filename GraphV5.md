@@ -14,6 +14,11 @@ classDiagram
         Drag
     }
 
+    class MouseActionState {
+        -bool success
+        -bool isBlock // Block lower priority command
+    }
+
     class ScreenEventHandler {
         -PointerState pointerState
         -GestureDetector gestureDetector
@@ -41,11 +46,10 @@ classDiagram
         +OnStart()
         +OnEnd()
         +OnCancel()
-        +OnMouseDown(event): bool
-        +OnMouseMove(event): bool
-        +OnMouseUp(event): bool
-        +OnWheel(event): bool
-        +Update(deltaTime)
+        +OnMouseDown(event): MouseActionState
+        +OnMouseMove(event): MouseActionState
+        +OnMouseUp(event): MouseActionState
+        +OnWheel(event): MouseActionState
     }
 
     class MouseButtonSlots {
@@ -75,6 +79,7 @@ classDiagram
     MouseCommandManager --> MouseButtonSlots
     MouseButtonSlots --> MouseButton
     MouseButtonSlots --> ICommand
+    ICommand --> MouseActionState
 ```
 
 ```mermaid
