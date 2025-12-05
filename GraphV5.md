@@ -140,8 +140,6 @@ classDiagram
         -vec3 _startWorld
         -vec3 _endWorld
         -bool _hasStart
-        +Priority(): PRIMARY
-        +CanCoexist(other): false
         #onStateEnter(state)
         #onStateExit(state)
     }
@@ -149,53 +147,36 @@ classDiagram
     class AreaMeasureCommand {
         -vector~vec3~ _points
         -bool _isClosed
-        +Priority(): PRIMARY
-        +CanCoexist(other): false
     }
     
     class LineDrawingCommand {
         -vector~vec3~ _points
         -bool _continuous
-        +Priority(): PRIMARY
-        +CanCoexist(other): false
         +ContinueDrawing()
     }
     
     class RotateNavigationCommand {
         -Camera* _camera
-        -vec2 _lastPos
-        +Priority(): VIEW
-        +CanCoexist(other): true if VIEW
     }
     
     class PanNavigationCommand {
         -Camera* _camera
-        -vec2 _lastPos
-        +Priority(): VIEW
-        +CanCoexist(other): true if VIEW
     }
     
     class ZoomNavigationCommand {
         -Camera* _camera
-        +Priority(): VIEW
-        +CanCoexist(other): true
         +OnWheel(delta)
     }
     
     class SnapToMidpointCommand {
         -vec3 _point1
         -vec3 _point2
-        +Priority(): HELPER
-        +CanCoexist(other): true
         +GetMidpoint(): vec3
     }
     
     class HoverHighlightCommand {
-        -Entity* _hoveredEntity
         -Color _originalColor
         -Color _highlightColor
-        +Priority(): HELPER
-        +CanCoexist(other): true
         +OnMouseMove(event)
     }
 
