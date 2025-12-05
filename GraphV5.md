@@ -53,13 +53,10 @@ classDiagram
         -ICommand primaryCommand
         -ICommand viewCommand
         -ICommand helperCommand
-        +GetButton(): MouseButton
-        +GetPrimary(): ICommand
-        +GetView(): ICommand
-        +GetHelper(): ICommand
-        +SetPrimary(cmd: ICommand)
-        +SetView(cmd: ICommand)
-        +SetHelper(cmd: ICommand)
+        +DispatchMouseDown(event, gesture: GestureType): bool
+        +DispatchMouseMove(event, gesture: GestureType): bool
+        +DispatchMouseUp(event, gesture: GestureType): bool
+        +DispatchWheel(event): bool
     }
 
     class MouseCommandManager {
@@ -69,12 +66,6 @@ classDiagram
         +BindPrimary(button: MouseButton, cmd: ICommand)
         +BindView(button: MouseButton, cmd: ICommand)
         +BindHelper(button: MouseButton, cmd: ICommand)
-        +DispatchMouseDown(event, gesture: GestureType): bool
-        +DispatchMouseMove(event, gesture: GestureType): bool
-        +DispatchMouseUp(event, gesture: GestureType): bool
-        +DispatchWheel(event): bool
-        +UpdateAll(deltaTime)
-        -getSlots(button: MouseButton): MouseButtonSlots
     }
 
     ScreenEventHandler --> GestureDetector
