@@ -21,6 +21,9 @@ flowchart TD
 - Dont have interface like click action?
   => need to create a separated Command.
 
+**Questions**
+- Can a mouse ( left mouse for example ) hold 2 Command at the same time base on Gesture? For example, left mouse drag is rotation, but click is pick a point?
+
 **Temporary Architecture Graph ( In Progress )**
 ```mermaid
 flowchart LR
