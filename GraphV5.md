@@ -1,218 +1,33 @@
-```mermaid
-classDiagram
-    class ScreenEventHandler {
-        -PointerState _pointerState
-        -Camera* _camera
-        -App* _app
-        -MouseCommandManager* _commandManager
-        -GestureDetector _gestureDetector
-        +onMouseDown(event)
-        +onMouseMove(event)
-        +onMouseUp(event)
-        +onWheel(event)
-        -detectGesture(): GestureType
-    }
-    
-    class GestureDetector {
-        -vec2 _startPos
-        -double _startTime
-        -const double DRAG_THRESHOLD = 5.0
-        -const double CLICK_TIME_MS = 200.0
-        +reset()
-        +isClick(): bool
-        +isDrag(): bool
-    }
-    
-    class ICommand {
-        <<interface>>
-        +Name() const: const char*
-        +Priority() const: CommandPriority
-        +CanCoexist(other): bool
-        +OnStart(context)
-        +OnEnd(context)
-        +OnCancel(context)
-        +OnMouseDown(event): bool
-        +OnMouseMove(event): bool
-        +OnMouseUp(event): bool
-        +Update(deltaTime)
-    }
-    
-    class CommandState {
+```mermaidclassDiagram
+    class MouseButton {
         <<enumeration>>
-        IDLE
-        ACTIVE
-        WAITING_INPUT
-        EXECUTING
-        COMPLETED
-        CANCELLED
-    }
-    
-    class CommandPriority {
-        <<enumeration>>
-        PRIMARY = 0
-        VIEW = 1
-        HELPER = 2
-    }
-    
-    class MouseCommandManager {
-        -App* _app
-        -ICommand* _primaryCommand
-        -vector~ICommand*~ _viewCommands
-        -vector~ICommand*~ _helperCommands
-        -CommandContext _context
-        +BindCommand(button, command, priority)
-        +DispatchMouseDown(event): bool
-        +DispatchMouseMove(event): bool
-        +DispatchMouseUp(event): bool
-        +DispatchWheel(event): bool
-        +SetPrimaryCommand(command)
-        +AddViewCommand(command)
-        +AddHelperCommand(command)
-        +CancelPrimaryCommand()
-        -resolveConflicts()
-        -dispatchToLayer(layer, event): bool
-    }
-    
-    class CommandContext {
-        -Camera* camera
-        -Scene* scene
-        -map~string,any~ sharedData
-        +GetCamera(): Camera*
-        +GetScene(): Scene*
-        +SetData(key, value)
-        +GetData(key): any
-    }
-    
-    class StatefulCommand {
-        <<abstract>>
-        -CommandState _state
-        -StateMachine* _stateMachine
-        +GetState(): CommandState
-        +TransitionTo(state)
-        #onStateEnter(state)*
-        #onStateExit(state)*
-    }
-    
-    class DistanceMeasureCommand {
-        -vec3 _startWorld
-        -vec3 _endWorld
-        -bool _hasStart
-        +Priority(): PRIMARY
-        +CanCoexist(other): false
-        #onStateEnter(state)
-        #onStateExit(state)
-    }
-    
-    class AreaMeasureCommand {
-        -vector~vec3~ _points
-        -bool _isClosed
-        +Priority(): PRIMARY
-        +CanCoexist(other): false
-    }
-    
-    class LineDrawingCommand {
-        -vector~vec3~ _points
-        -bool _continuous
-        +Priority(): PRIMARY
-        +CanCoexist(other): false
-        +ContinueDrawing()
-    }
-    
-    class RotateNavigationCommand {
-        -Camera* _camera
-        -vec2 _lastPos
-        +Priority(): VIEW
-        +CanCoexist(other): true if VIEW
-    }
-    
-    class PanNavigationCommand {
-        -Camera* _camera
-        -vec2 _lastPos
-        +Priority(): VIEW
-        +CanCoexist(other): true if VIEW
-    }
-    
-    class ZoomNavigationCommand {
-        -Camera* _camera
-        +Priority(): VIEW
-        +CanCoexist(other): true
-        +OnWheel(delta)
-    }
-    
-    class SnapToMidpointCommand {
-        -vec3 _point1
-        -vec3 _point2
-        +Priority(): HELPER
-        +CanCoexist(other): true
-        +GetMidpoint(): vec3
-    }
-    
-    class HoverHighlightCommand {
-        -Entity* _hoveredEntity
-        -Color _originalColor
-        -Color _highlightColor
-        +Priority(): HELPER
-        +CanCoexist(other): true
-        +OnMouseMove(event)
-    }
-    
-    class Camera {
-        +Rotate(dx, dy)
-        +Pan(dx, dy)
-        +Zoom(delta)
-        +GetViewMatrix(): mat4
-    }
-    
-    ICommand <|.. StatefulCommand
-    StatefulCommand <|-- DistanceMeasureCommand
-    StatefulCommand <|-- AreaMeasureCommand
-    StatefulCommand <|-- LineDrawingCommand
-    ICommand <|.. RotateNavigationCommand
-    ICommand <|.. PanNavigationCommand
-    ICommand <|.. ZoomNavigationCommand
-    ICommand <|.. SnapToMidpointCommand
-    ICommand <|.. HoverHighlightCommand
-    
-    ScreenEventHandler --> GestureDetector
-    ScreenEventHandler --> MouseCommandManager
-    MouseCommandManager --> CommandContext
-    MouseCommandManager --> ICommand
-    MouseCommandManager ..> CommandPriority
-    StatefulCommand --> CommandState
-    ICommand ..> CommandPriority
-    
-    RotateNavigationCommand --> Camera
-    PanNavigationCommand --> Camera
-    ZoomNavigationCommand --> Camera
-    CommandContext --> Camera
-```
-
-
-```mermaid
-classDiagram
-    class ScreenEventHandler {
-        -PointerState _pointerState
-        -Camera* _camera
-        -App* _app
-        -MouseCommandManager* _commandManager
-        -GestureDetector _gestureDetector
-        +onMouseDown(event)
-        +onMouseMove(event)
-        +onMouseUp(event)
-        +onWheel(event)
+        Left
+        Right
+        Middle
     }
 
     class GestureType {
         <<enumeration>>
-        NONE
-        CLICK
-        DRAG
+        None
+        Click
+        Drag
+    }
+
+    class ScreenEventHandler {
+        -PointerState pointerState
+        -GestureDetector gestureDetector
+        -MouseCommandManager commandManager
+        +onMouseDown(event)
+        +onMouseMove(event)
+        +onMouseUp(event)
+        +onWheel(event)
     }
 
     class GestureDetector {
-        -vec2 _startPos
-        -double _startTimeMs
-        -bool _dragActive
+        -vec2 startPos
+        -double startTimeMs
+        -bool dragActive
+        -double dragThresholdPx
         +reset()
         +onMouseDown(event)
         +onMouseMove(event)
@@ -220,207 +35,197 @@ classDiagram
         +getGestureType(): GestureType
     }
 
-    class CommandPriority {
-        <<enumeration>>
-        PRIMARY
-        VIEW
-        HELPER
+    class ICommand {
+        <<interface>>
+        +OnStart()
+        +OnEnd()
+        +OnCancel()
+        +OnMouseDown(event): bool
+        +OnMouseMove(event): bool
+        +OnMouseUp(event): bool
+        +OnWheel(event): bool
+        +Update(deltaTime)
     }
 
-    class CommandState {
-        <<enumeration>>
-        IDLE
-        ACTIVE
-        WAITING_INPUT
-        EXECUTING
-        COMPLETED
-        CANCELLED
+    class MouseButtonSlots {
+        -MouseButton button
+        -ICommand primaryCommand
+        -ICommand viewCommand
+        -ICommand helperCommand
+        +GetButton(): MouseButton
+        +GetPrimary(): ICommand
+        +GetView(): ICommand
+        +GetHelper(): ICommand
+        +SetPrimary(cmd: ICommand)
+        +SetView(cmd: ICommand)
+        +SetHelper(cmd: ICommand)
     }
 
-    class CommandContext {
-        -Camera* _camera
-        -Scene* _scene
-        -map sharedData
-        +GetCamera(): Camera*
-        +GetScene(): Scene*
-        +SetData(key, value)
-        +GetData(key)
+    class MouseCommandManager {
+        -MouseButtonSlots leftSlots
+        -MouseButtonSlots rightSlots
+        -MouseButtonSlots middleSlots
+        +BindPrimary(button: MouseButton, cmd: ICommand)
+        +BindView(button: MouseButton, cmd: ICommand)
+        +BindHelper(button: MouseButton, cmd: ICommand)
+        +DispatchMouseDown(event, gesture: GestureType): bool
+        +DispatchMouseMove(event, gesture: GestureType): bool
+        +DispatchMouseUp(event, gesture: GestureType): bool
+        +DispatchWheel(event): bool
+        +UpdateAll(deltaTime)
+        -getSlots(button: MouseButton): MouseButtonSlots
+    }
+
+    ScreenEventHandler --> GestureDetector
+    ScreenEventHandler --> MouseCommandManager
+    GestureDetector --> GestureType
+
+    MouseCommandManager --> MouseButtonSlots
+    MouseButtonSlots --> MouseButton
+    MouseCommandManager --> ICommand
+```
+
+
+```mermaidclassDiagram
+    class CommandCategory {
+        <<enumeration>>
+        Primary
+        View
+        Helper
     }
 
     class ICommand {
         <<interface>>
-        +Name() const: const char*
-        +Priority() const: CommandPriority
-        +CanCoexist(other: ICommand*): bool
-        +OnStart(context: CommandContext)
-        +OnEnd(context: CommandContext)
-        +OnCancel(context: CommandContext)
-        +OnMouseDown(event, context: CommandContext): bool
-        +OnMouseMove(event, context: CommandContext): bool
-        +OnMouseUp(event, context: CommandContext): bool
-        +OnWheel(event, context: CommandContext): bool
-        +Update(deltaTime, context: CommandContext)
+        +GetCategory() CommandCategory
+        +OnStart()
+        +OnEnd()
+        +OnCancel()
+        +OnMouseDown(event) bool
+        +OnMouseMove(event) bool
+        +OnMouseUp(event) bool
+        +OnWheel(event) bool
+        +Update(deltaTime)
     }
 
-    class StatefulCommand {
-        <<abstract>>
-        -CommandState _state
-        +GetState(): CommandState
-        +TransitionTo(state: CommandState)
-        #onStateEnter(state: CommandState)
-        #onStateExit(state: CommandState)
-    }
-
-    class MouseCommandManager {
-        -App* _app
-        -ICommand* _primaryCommand
-        -list _viewCommands
-        -list _helperCommands
-        -CommandContext _context
-        +BindCommand(button, command: ICommand*, priority: CommandPriority)
-        +DispatchMouseDown(event): bool
-        +DispatchMouseMove(event): bool
-        +DispatchMouseUp(event): bool
-        +DispatchWheel(event): bool
-        +SetPrimaryCommand(command: ICommand*)
-        +AddViewCommand(command: ICommand*)
-        +AddHelperCommand(command: ICommand*)
-        +CancelPrimaryCommand()
-        -resolveConflicts()
-        -dispatchToLayer(layer, event): bool
-    }
-
+    %% ===== Primary commands (long living, can use state machine internally) =====
     class DistanceMeasureCommand {
-        -vec3 _startWorld
-        -vec3 _endWorld
-        -bool _hasStart
-        +Priority() const: CommandPriority
-        +CanCoexist(other: ICommand*): bool
-        +OnStart(context: CommandContext)
-        +OnMouseDown(event, context: CommandContext): bool
-        +OnMouseMove(event, context: CommandContext): bool
-        +OnMouseUp(event, context: CommandContext): bool
-        #onStateEnter(state: CommandState)
-        #onStateExit(state: CommandState)
+        -vec3 startWorld
+        -vec3 endWorld
+        -bool hasStart
+        +GetCategory() CommandCategory
+        +OnStart()
+        +OnEnd()
+        +OnCancel()
+        +OnMouseDown(event) bool
+        +OnMouseMove(event) bool
+        +OnMouseUp(event) bool
     }
 
-    class AreaMeasureCommand {
-        -list _points
-        -bool _isClosed
-        +Priority() const: CommandPriority
-        +CanCoexist(other: ICommand*): bool
-        +OnStart(context: CommandContext)
-        +OnMouseDown(event, context: CommandContext): bool
-        +OnMouseMove(event, context: CommandContext): bool
-        +OnMouseUp(event, context: CommandContext): bool
+    class LineDrawingState {
+        <<enumeration>>
+        Idle
+        AwaitFirstPoint
+        Drawing
+        Completed
+        Canceled
     }
 
     class LineDrawingCommand {
-        -list _points
-        -bool _continuous
-        +Priority() const: CommandPriority
-        +CanCoexist(other: ICommand*): bool
-        +OnStart(context: CommandContext)
-        +OnMouseDown(event, context: CommandContext): bool
-        +OnMouseMove(event, context: CommandContext): bool
-        +OnMouseUp(event, context: CommandContext): bool
-        +ContinueDrawing()
+        -LineDrawingState state
+        -list points
+        +GetCategory() CommandCategory
+        +OnStart()
+        +OnEnd()
+        +OnCancel()
+        +OnMouseDown(event) bool
+        +OnMouseMove(event) bool
+        +OnMouseUp(event) bool
+        +Update(deltaTime)
     }
 
-    class RotateNavigationCommand {
-        -Camera* _camera
-        -vec2 _lastPos
-        +Priority() const: CommandPriority
-        +CanCoexist(other: ICommand*): bool
-        +OnStart(context: CommandContext)
-        +OnMouseDown(event, context: CommandContext): bool
-        +OnMouseMove(event, context: CommandContext): bool
-        +OnMouseUp(event, context: CommandContext): bool
+    %% ===== View commands (pan, rotate, wheel) =====
+    class RotateViewCommand {
+        -Camera camera
+        -vec2 lastPos
+        +GetCategory() CommandCategory
+        +OnStart()
+        +OnEnd()
+        +OnMouseDown(event) bool
+        +OnMouseMove(event) bool
+        +OnMouseUp(event) bool
     }
 
-    class PanNavigationCommand {
-        -Camera* _camera
-        -vec2 _lastPos
-        +Priority() const: CommandPriority
-        +CanCoexist(other: ICommand*): bool
-        +OnStart(context: CommandContext)
-        +OnMouseDown(event, context: CommandContext): bool
-        +OnMouseMove(event, context: CommandContext): bool
-        +OnMouseUp(event, context: CommandContext): bool
+    class PanViewCommand {
+        -Camera camera
+        -vec2 lastPos
+        +GetCategory() CommandCategory
+        +OnStart()
+        +OnEnd()
+        +OnMouseDown(event) bool
+        +OnMouseMove(event) bool
+        +OnMouseUp(event) bool
     }
 
-    class ZoomNavigationCommand {
-        -Camera* _camera
-        +Priority() const: CommandPriority
-        +CanCoexist(other: ICommand*): bool
-        +OnWheel(event, context: CommandContext): bool
+    class ZoomWheelCommand {
+        -Camera camera
+        +GetCategory() CommandCategory
+        +OnStart()
+        +OnEnd()
+        +OnWheel(event) bool
     }
 
-    class SnapToMidpointCommand {
-        -vec3 _point1
-        -vec3 _point2
-        +Priority() const: CommandPriority
-        +CanCoexist(other: ICommand*): bool
-        +OnStart(context: CommandContext)
-        +OnMouseDown(event, context: CommandContext): bool
-        +GetMidpoint(): vec3
+    %% ===== Helper commands (お助けコマンド) =====
+    class MidpointHelperCommand {
+        -vec3 p1
+        -vec3 p2
+        -bool active
+        +GetCategory() CommandCategory
+        +OnStart()
+        +OnEnd()
+        +OnMouseDown(event) bool
+        +GetMidpoint() vec3
     }
 
     class HoverHighlightCommand {
-        -Entity* _hoveredEntity
-        -Color _originalColor
-        -Color _highlightColor
-        +Priority() const: CommandPriority
-        +CanCoexist(other: ICommand*): bool
-        +OnMouseMove(event, context: CommandContext): bool
+        -Entity hovered
+        +GetCategory() CommandCategory
+        +OnStart()
+        +OnEnd()
+        +OnMouseMove(event) bool
     }
 
     class Camera {
         +Rotate(dx, dy)
         +Pan(dx, dy)
         +Zoom(delta)
-        +GetViewMatrix(): mat4
-    }
-
-    class Scene {
     }
 
     class Entity {
     }
 
-    class Color {
-    }
-
-    %% Inheritance and implementation
-    ICommand <|.. StatefulCommand
-    StatefulCommand <|-- DistanceMeasureCommand
-    StatefulCommand <|-- AreaMeasureCommand
-    StatefulCommand <|-- LineDrawingCommand
-
-    ICommand <|.. RotateNavigationCommand
-    ICommand <|.. PanNavigationCommand
-    ICommand <|.. ZoomNavigationCommand
-    ICommand <|.. SnapToMidpointCommand
+    %% ===== Inheritance =====
+    ICommand <|.. DistanceMeasureCommand
+    ICommand <|.. LineDrawingCommand
+    ICommand <|.. RotateViewCommand
+    ICommand <|.. PanViewCommand
+    ICommand <|.. ZoomWheelCommand
+    ICommand <|.. MidpointHelperCommand
     ICommand <|.. HoverHighlightCommand
 
-    %% Associations
-    ScreenEventHandler --> GestureDetector
-    ScreenEventHandler --> MouseCommandManager
+    %% ===== Associations =====
+    LineDrawingCommand --> LineDrawingState
+    DistanceMeasureCommand ..> CommandCategory
+    LineDrawingCommand ..> CommandCategory
+    RotateViewCommand ..> CommandCategory
+    PanViewCommand ..> CommandCategory
+    ZoomWheelCommand ..> CommandCategory
+    MidpointHelperCommand ..> CommandCategory
+    HoverHighlightCommand ..> CommandCategory
 
-    GestureDetector --> GestureType
-
-    MouseCommandManager --> CommandContext
-    MouseCommandManager --> ICommand
-
-    StatefulCommand --> CommandState
-    ICommand ..> CommandPriority
-
-    CommandContext --> Camera
-    CommandContext --> Scene
-
-    RotateNavigationCommand --> Camera
-    PanNavigationCommand --> Camera
-    ZoomNavigationCommand --> Camera
+    RotateViewCommand --> Camera
+    PanViewCommand --> Camera
+    ZoomWheelCommand --> Camera
 
     HoverHighlightCommand --> Entity
+    MidpointHelperCommand --> Entity
 ```
