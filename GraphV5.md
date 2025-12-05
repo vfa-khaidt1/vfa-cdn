@@ -109,8 +109,18 @@ classDiagram
         +Update(deltaTime)
     }
 
-    %% ===== Primary commands (long living, can use state machine internally) =====
+    %% ===== Primary commands =====
+    class DistanceMeasureState {
+        <<enumeration>>
+        Idle
+        AwaitFirstPoint
+        AwaitSecondPoint
+        Completed
+        Canceled
+    }
+
     class DistanceMeasureCommand {
+        -DistanceMeasureState state
         -vec3 startWorld
         -vec3 endWorld
         -bool hasStart
@@ -176,7 +186,7 @@ classDiagram
         +OnWheel(event) bool
     }
 
-    %% ===== Helper commands (お助けコマンド) =====
+    %% ===== Helper commands (helper / お助け) =====
     class MidpointHelperCommand {
         -vec3 p1
         -vec3 p2
@@ -214,8 +224,11 @@ classDiagram
     ICommand <|.. MidpointHelperCommand
     ICommand <|.. HoverHighlightCommand
 
-    %% ===== Associations =====
+    %% ===== State associations =====
+    DistanceMeasureCommand --> DistanceMeasureState
     LineDrawingCommand --> LineDrawingState
+
+    %% ===== Category associations (optional visual hint) =====
     DistanceMeasureCommand ..> CommandCategory
     LineDrawingCommand ..> CommandCategory
     RotateViewCommand ..> CommandCategory
@@ -224,6 +237,7 @@ classDiagram
     MidpointHelperCommand ..> CommandCategory
     HoverHighlightCommand ..> CommandCategory
 
+    %% ===== Other associations =====
     RotateViewCommand --> Camera
     PanViewCommand --> Camera
     ZoomWheelCommand --> Camera
