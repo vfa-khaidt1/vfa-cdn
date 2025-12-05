@@ -53,7 +53,7 @@ classDiagram
         +Name() const: const char*
         +CommandType() const: CommandType
         +GetMouseButton() const: MouseButton
-        +IsEnable const: bool
+        +IsEnable() const: bool
         +GetPriority() const: int // index
         +OnStart()
         +OnEnd()
