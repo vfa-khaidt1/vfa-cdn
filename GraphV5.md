@@ -1,4 +1,5 @@
-```mermaidclassDiagram
+```mermaid
+classDiagram
     class MouseButton {
         <<enumeration>>
         Left
@@ -86,7 +87,8 @@
 ```
 
 
-```mermaidclassDiagram
+```mermaid
+classDiagram
     class CommandCategory {
         <<enumeration>>
         Primary
