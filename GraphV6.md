@@ -51,10 +51,10 @@ classDiagram
 
     class ICommand {
         <<interface>>
-        +Name() const: const char*
-        +CommandType() const: CommandType
-        +GetMouseButton() const: MouseButton
-        +IsEnable() const: bool
+        -const char* name
+        -CommandType type
+        -bool isEnable 
+        -int priority
         +GetPriority() const: int // index
         +OnStart()
         +OnEnd()
