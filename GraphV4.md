@@ -211,7 +211,7 @@ classDiagram
 
     class DistanceMeasureCommand {
         <<State Machine>>
-        -enum State { IDLE, WAITING_PT2, FINISHED }
+        -enum State [ IDLE, WAITING_PT2, FINISHED ]
         -State _state
         -vec3 _startPoint
         -vec3 _currentEndPoint
