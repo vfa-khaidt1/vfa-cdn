@@ -5,7 +5,7 @@ classDiagram
         Left
         Right
         Middle
-        Any
+        Any // For Hover...
     }
 
     class GestureType {
