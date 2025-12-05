@@ -99,7 +99,7 @@ flowchart TB
     end
 
 
-    Event --> HelperSlot
+    Event --> FirstCommand
     FirstCommand -->Block1 --> |No| SecondCommand
     Block1 --> |Yes| End
     SecondCommand -->Block2 --> |No| ThirdCommand
