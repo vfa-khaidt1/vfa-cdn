@@ -74,12 +74,12 @@ classDiagram
 
     ScreenEventHandler --> GestureDetector
     ScreenEventHandler --> MouseCommandManager
-    GestureDetector --> GestureType
+    GestureDetector ..> GestureType
 
     MouseCommandManager --> MouseButtonSlots
     MouseButtonSlots --> MouseButton
     MouseButtonSlots --> ICommand
-    ICommand --> MouseActionState
+    ICommand ..> MouseActionState
 ```
 
 ```mermaid
@@ -106,159 +106,106 @@ flowchart TB
 
 ```mermaid
 classDiagram
-    class CommandCategory {
+   class CommandState {
         <<enumeration>>
-        Primary
-        View
-        Helper
+        IDLE
+        ACTIVE
+        WAITING_INPUT
+        EXECUTING
+        COMPLETED
+        CANCELLED
     }
-
-    class ICommand {
+      class ICommand {
         <<interface>>
-        +GetCategory() CommandCategory
+        +Name() const: const char*
         +OnStart()
         +OnEnd()
         +OnCancel()
-        +OnMouseDown(event) bool
-        +OnMouseMove(event) bool
-        +OnMouseUp(event) bool
-        +OnWheel(event) bool
-        +Update(deltaTime)
+        +OnMouseDown(event): MouseActionState
+        +OnMouseMove(event): MouseActionState
+        +OnMouseUp(event): MouseActionState
+        +OnWheel(event): MouseActionState
     }
-
-    %% ===== Primary commands =====
-    class DistanceMeasureState {
-        <<enumeration>>
-        Idle
-        AwaitFirstPoint
-        AwaitSecondPoint
-        Completed
-        Canceled
+   class StatefulCommand {
+        <<abstract>>
+        -CommandState _state
+        -StateMachine* _stateMachine
+        +GetState(): CommandState
+        +TransitionTo(state)
+        #onStateEnter(state)*
+        #onStateExit(state)*
     }
-
+    
     class DistanceMeasureCommand {
-        -DistanceMeasureState state
-        -vec3 startWorld
-        -vec3 endWorld
-        -bool hasStart
-        +GetCategory() CommandCategory
-        +OnStart()
-        +OnEnd()
-        +OnCancel()
-        +OnMouseDown(event) bool
-        +OnMouseMove(event) bool
-        +OnMouseUp(event) bool
+        -vec3 _startWorld
+        -vec3 _endWorld
+        -bool _hasStart
+        +Priority(): PRIMARY
+        +CanCoexist(other): false
+        #onStateEnter(state)
+        #onStateExit(state)
     }
-
-    class LineDrawingState {
-        <<enumeration>>
-        Idle
-        AwaitFirstPoint
-        Drawing
-        Completed
-        Canceled
+    
+    class AreaMeasureCommand {
+        -vector~vec3~ _points
+        -bool _isClosed
+        +Priority(): PRIMARY
+        +CanCoexist(other): false
     }
-
+    
     class LineDrawingCommand {
-        -LineDrawingState state
-        -list points
-        +GetCategory() CommandCategory
-        +OnStart()
-        +OnEnd()
-        +OnCancel()
-        +OnMouseDown(event) bool
-        +OnMouseMove(event) bool
-        +OnMouseUp(event) bool
-        +Update(deltaTime)
+        -vector~vec3~ _points
+        -bool _continuous
+        +Priority(): PRIMARY
+        +CanCoexist(other): false
+        +ContinueDrawing()
     }
-
-    %% ===== View commands (pan, rotate, wheel) =====
-    class RotateViewCommand {
-        -Camera camera
-        -vec2 lastPos
-        +GetCategory() CommandCategory
-        +OnStart()
-        +OnEnd()
-        +OnMouseDown(event) bool
-        +OnMouseMove(event) bool
-        +OnMouseUp(event) bool
+    
+    class RotateNavigationCommand {
+        -Camera* _camera
+        -vec2 _lastPos
+        +Priority(): VIEW
+        +CanCoexist(other): true if VIEW
     }
-
-    class PanViewCommand {
-        -Camera camera
-        -vec2 lastPos
-        +GetCategory() CommandCategory
-        +OnStart()
-        +OnEnd()
-        +OnMouseDown(event) bool
-        +OnMouseMove(event) bool
-        +OnMouseUp(event) bool
+    
+    class PanNavigationCommand {
+        -Camera* _camera
+        -vec2 _lastPos
+        +Priority(): VIEW
+        +CanCoexist(other): true if VIEW
     }
-
-    class ZoomWheelCommand {
-        -Camera camera
-        +GetCategory() CommandCategory
-        +OnStart()
-        +OnEnd()
-        +OnWheel(event) bool
+    
+    class ZoomNavigationCommand {
+        -Camera* _camera
+        +Priority(): VIEW
+        +CanCoexist(other): true
+        +OnWheel(delta)
     }
-
-    %% ===== Helper commands (helper / お助け) =====
-    class MidpointHelperCommand {
-        -vec3 p1
-        -vec3 p2
-        -bool active
-        +GetCategory() CommandCategory
-        +OnStart()
-        +OnEnd()
-        +OnMouseDown(event) bool
-        +GetMidpoint() vec3
+    
+    class SnapToMidpointCommand {
+        -vec3 _point1
+        -vec3 _point2
+        +Priority(): HELPER
+        +CanCoexist(other): true
+        +GetMidpoint(): vec3
     }
-
+    
     class HoverHighlightCommand {
-        -Entity hovered
-        +GetCategory() CommandCategory
-        +OnStart()
-        +OnEnd()
-        +OnMouseMove(event) bool
+        -Entity* _hoveredEntity
+        -Color _originalColor
+        -Color _highlightColor
+        +Priority(): HELPER
+        +CanCoexist(other): true
+        +OnMouseMove(event)
     }
 
-    class Camera {
-        +Rotate(dx, dy)
-        +Pan(dx, dy)
-        +Zoom(delta)
-    }
-
-    class Entity {
-    }
-
-    %% ===== Inheritance =====
-    ICommand <|.. DistanceMeasureCommand
-    ICommand <|.. LineDrawingCommand
-    ICommand <|.. RotateViewCommand
-    ICommand <|.. PanViewCommand
-    ICommand <|.. ZoomWheelCommand
-    ICommand <|.. MidpointHelperCommand
+    ICommand <|.. StatefulCommand
+    StatefulCommand <|-- DistanceMeasureCommand
+    StatefulCommand <|-- AreaMeasureCommand
+    StatefulCommand <|-- LineDrawingCommand
+    ICommand <|.. RotateNavigationCommand
+    ICommand <|.. PanNavigationCommand
+    ICommand <|.. ZoomNavigationCommand
+    ICommand <|.. SnapToMidpointCommand
     ICommand <|.. HoverHighlightCommand
-
-    %% ===== State associations =====
-    DistanceMeasureCommand --> DistanceMeasureState
-    LineDrawingCommand --> LineDrawingState
-
-    %% ===== Category associations (optional visual hint) =====
-    DistanceMeasureCommand ..> CommandCategory
-    LineDrawingCommand ..> CommandCategory
-    RotateViewCommand ..> CommandCategory
-    PanViewCommand ..> CommandCategory
-    ZoomWheelCommand ..> CommandCategory
-    MidpointHelperCommand ..> CommandCategory
-    HoverHighlightCommand ..> CommandCategory
-
-    %% ===== Other associations =====
-    RotateViewCommand --> Camera
-    PanViewCommand --> Camera
-    ZoomWheelCommand --> Camera
-
-    HoverHighlightCommand --> Entity
-    MidpointHelperCommand --> Entity
 ```
