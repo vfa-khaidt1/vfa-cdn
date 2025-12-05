@@ -2,48 +2,95 @@
 classDiagram
     class ScreenEventHandler {
         -PointerState _pointerState
-        -Camera* _camera
-        -App* _app
-        -MouseCommandManager* _commandManager
-        +onMouseDown(...)
-        +onMouseMove(...)
-        +onMouseUp(...)
+        -GestureRecognizer _gesture
+        -MouseCommandOrchestrator* _orchestrator
+        +onMouseDown(event)
+        +onMouseMove(event)
+        +onMouseUp(event)
+        +onWheel(event)
+        +onKeyDown(event)
+        +onKeyUp(event)
+    }
+
+    class GestureRecognizer {
+        +updatePointer(event) void
+        +classifyMouse(event) GestureType
+    }
+
+    class MouseCommandOrchestrator {
+        -ICommand* _activePrimary
+        -ICommand* _viewPan
+        -ICommand* _viewRotate
+        -ICommand* _viewZoomWheel
+        -ICommand* _viewOther
+        -ICommand* _helperStack[ ]
+        +setPrimaryCommand(cmd : ICommand*) void
+        +pushHelperCommand(cmd : ICommand*) void
+        +popHelperCommand() void
+        +dispatchMouseDown(event, gesture) bool
+        +dispatchMouseMove(event, gesture) bool
+        +dispatchMouseUp(event, gesture) bool
+        +dispatchWheel(event) bool
+        +dispatchKeyDown(event) bool
+        +dispatchKeyUp(event) bool
     }
 
     class ICommand {
         <<interface>>
-        +Name() const : const char*
-        +OnStart() : void
-        +OnEnd() : void
-        +OnCancel() : void
-        +OnMouseDown(event) : bool
-        +OnMouseMove(event) : bool
-        +OnMouseUp(event) : bool
+        +name() string
+        +getKind() CommandKind
+        +onStart(context : CommandContext) void
+        +onEnd(context : CommandContext) void
+        +onCancel(context : CommandContext) void
+        +onMouseDown(event, context : CommandContext) bool
+        +onMouseMove(event, context : CommandContext) bool
+        +onMouseUp(event, context : CommandContext) bool
+        +onWheel(event, context : CommandContext) bool
+        +onKeyDown(event, context : CommandContext) bool
+        +onKeyUp(event, context : CommandContext) bool
     }
 
-    class MouseCommandManager {
-        -App* _app
-        -ICommand* _leftCommand
-        -ICommand* _rightCommand
-        -ICommand* _middleCommand
-        +BindCommand(button, command) : bool
-        +DispatchMouseDown(event) : bool
-        +DispatchMouseMove(event) : bool
-        +DispatchMouseUp(event) : bool
+    class CommandKind {
+        <<enumeration>>
+        View
+        Primary
+        Helper
+    }
+
+    class CommandContext {
+        -App* app
+        -Camera* camera
+        -SelectionManager* selection
+        -SnapManager* snap
+        +getApp() App*
+        +getCamera() Camera*
+        +getSelection() SelectionManager*
+        +getSnap() SnapManager*
     }
 
     class DistanceMeasureCommand {
-        -App* _app
-        -vec3 _startWorld
-        -vec3 _endWorld
         -DistanceMeasureState _state
-        +OnStart() : void
-        +OnEnd() : void
-        +OnCancel() : void
-        +OnMouseDown(event) : bool
-        +OnMouseMove(event) : bool
-        +OnMouseUp(event) : bool
-        -ChangeState(newState : DistanceMeasureState) : void
+    }
+
+    class AreaMeasureCommand {
+        -AreaMeasureState _state
+    }
+
+    class PanCommand {
+        -PanState _state
+    }
+
+    class RotateCommand {
+        -RotateState _state
+    }
+
+    class ZoomWheelCommand {
+    }
+
+    class MidpointHelperCommand {
+    }
+
+    class HoverHighlightHelperCommand {
     }
 
     class DistanceMeasureState {
@@ -55,65 +102,46 @@ classDiagram
         Canceled
     }
 
-    class AreaMeasureCommand {
-        -App* _app
-        +OnStart() : void
-        +OnEnd() : void
-        +OnCancel() : void
-        +OnMouseDown(event) : bool
-        +OnMouseMove(event) : bool
-        +OnMouseUp(event) : bool
-    }
-
-    class PanNavigationCommand {
-        -Camera* _camera
-        -App* _app
-        +OnStart() : void
-        +OnEnd() : void
-        +OnCancel() : void
-        +OnMouseDown(event) : bool
-        +OnMouseMove(event) : bool
-        +OnMouseUp(event) : bool
-    }
-
-    class RotateNavigationCommand {
-        -Camera* _camera
-        -App* _app
-        +OnStart() : void
-        +OnEnd() : void
-        +OnCancel() : void
-        +OnMouseDown(event) : bool
-        +OnMouseMove(event) : bool
-        +OnMouseUp(event) : bool
-    }
-
-    class Camera {
-        +Rotate(dx,dy) : void
-        +Pan(dx,dy) : void
-        +Zoom(...) : void
+    class PanState {
+        <<enumeration>>
+        Idle
+        PendingDrag
+        Dragging
     }
 
     ICommand <|.. DistanceMeasureCommand
     ICommand <|.. AreaMeasureCommand
-    ICommand <|.. RotateNavigationCommand
-    ICommand <|.. PanNavigationCommand
+    ICommand <|.. PanCommand
+    ICommand <|.. RotateCommand
+    ICommand <|.. ZoomWheelCommand
+    ICommand <|.. MidpointHelperCommand
+    ICommand <|.. HoverHighlightHelperCommand
 
-    ScreenEventHandler --> MouseCommandManager : dispatches events
-    MouseCommandManager --> ICommand : per-button slots
-    RotateNavigationCommand --> Camera : drives
-    PanNavigationCommand --> Camera : drives
+    ScreenEventHandler --> GestureRecognizer
+    ScreenEventHandler --> MouseCommandOrchestrator : dispatches
+    MouseCommandOrchestrator --> ICommand : routes events
+    ICommand --> CommandContext : uses
+
 ```
 
 ```mermaid
-stateDiagram-v2
-    [*] --> Idle
+flowchart LR
+    subgraph Input["Browser Canvas"]
+        Raw["Emscripten Mouse / Key Events"]
+    end
 
-    Idle --> AwaitFirstPoint : OnStart()
-    AwaitFirstPoint --> AwaitSecondPoint : MouseDown on point
-    AwaitSecondPoint --> Completed : MouseDown on point
+    Raw --> SEH["ScreenEventHandler\n(pointer state + click/drag threshold)"]
+    SEH --> GR["GestureRecognizer\n(click / drag / wheel)"]
+    GR --> ORCH["MouseCommandOrchestrator"]
 
-    AwaitFirstPoint --> Canceled : OnCancel() / Esc
-    AwaitSecondPoint --> Canceled : OnCancel() / Esc
-    Completed --> Idle : OnEnd()
-    Canceled --> Idle : OnEnd()
+    subgraph Layers["Command Layers"]
+        Primary["PrimaryCommandSlot\n(Draw / Measure)"]
+        View["ViewCommandLayer\n(Pan / Rotate / Zoom / Wheel)"]
+        Helper["HelperCommandStack\n(Interrupt / Helper)"]
+    end
+
+    ORCH --> Primary
+    ORCH --> View
+    ORCH --> Helper
+
 ```
