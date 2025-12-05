@@ -74,7 +74,7 @@ classDiagram
 
     MouseCommandManager --> MouseButtonSlots
     MouseButtonSlots --> MouseButton
-    MouseCommandManager --> ICommand
+    MouseButtonSlots --> ICommand
 ```
 
 ```mermaid
