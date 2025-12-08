@@ -92,6 +92,8 @@ classDiagram
         -ICommand* primaryCommand // 1 primary command at a time
         -vector~ICommand~ viewCommands // Multiple view command can run Pan/ Rotate/ Wheel mouse zoom.
         -vector~ICommand~ helperCommands // Snap, Highlight
+
+        -ICommand* runningCommand // <--- running command (Capture)
         -CommandContext context
 
         +DispatchMouseDown(MouseEvent e): CommandStatus
@@ -113,6 +115,51 @@ classDiagram
     ICommand ..> MouseButton : holds
     ICommand ..> MouseEvent : input
 
+```
+
+```
+CommandStatus DispatchMouseDown(MouseEvent& e) {
+        // If has running command
+        if(runningCommand!=null)
+        {    
+            CommandStatus status = view->OnMouseDown(e);
+            if (status == CommandStatus::Finished || status == CommandStatus::Cancel) {
+                runningCommand = nullPtr;
+            }
+            return status; 
+        }
+    
+        // [LAYER 1] Helper
+        for (auto helper : helperCommands) {
+            helper->OnMouseDown(e); 
+        }
+
+        // [LAYER 2] View Commands (Pan, Rotate)
+        for (auto view : viewCommands) {
+            CommandStatus status = view->OnMouseDown(e);
+            if (status == CommandStatus::Running) {
+                runningCommand = view;
+                return status; 
+            }
+        }
+
+        // [LAYER 3] Primary Command (Draw Line, Select)
+        if (primaryCommand) {
+            CommandStatus status = primaryCommand->OnMouseDown(e);
+            if(status = CommandStatus::Running){
+                 runningCommand = view;
+            }
+            else if (status == CommandStatus::Finished) {
+                primaryCommand->OnEnd();
+            } else if (status == CommandStatus::Cancelled) {
+                primaryCommand->OnCancel();
+            }
+            
+            return status;
+        }
+
+        return CommandStatus::None;
+    }
 ```
 
 ```mermaid
