@@ -1,3 +1,4 @@
+```mermaid
 classDiagram
     class MouseButton {
         <<enumeration>>
@@ -71,6 +72,7 @@ classDiagram
     GestureDetector ..> GestureType
     CommandManager --> ICommand
     ICommand ..> MouseButton
+```
 
 ```mermaid
 classDiagram
