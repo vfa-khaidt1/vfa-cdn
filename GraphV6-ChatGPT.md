@@ -1,4 +1,3 @@
-```mermaid
 classDiagram
     class MouseButton {
         <<enumeration>>
@@ -13,17 +12,6 @@ classDiagram
         None
         Click
         Drag
-    }
-
-    class CommandType {
-        <<enumeration>>
-        HELPER
-        PRIMARY 
-        VIEW
-    }
-
-    class MouseActionState {
-        -bool handled
     }
 
     class ScreenEventHandler {
@@ -51,45 +39,38 @@ classDiagram
     class ICommand {
         <<interface>>
         -const char* name
-        -CommandType type
+        -int priority      // càng cao càng "quan trọng" (VD: ViewRotate > Measure)
         -bool enabled
-        -int priority
-        +GetPriority() const: int
         +OnStart()
         +OnEnd()
         +OnCancel()
-        +OnMouseDown(event): MouseActionState
-        +OnMouseMove(event): MouseActionState
-        +OnMouseUp(event): MouseActionState
-        +OnWheel(event): MouseActionState
+        +OnMouseDown(event): bool
+        +OnMouseMove(event): bool
+        +OnMouseUp(event): bool
+        +OnWheel(event): bool
     }
 
     class CommandManager {
-        -ICommand* activeCommand
-        -stack~ICommand*~ suspendedCommands
-        -vector~ICommand*~ primaryCommands
-        -vector~ICommand*~ viewCommands
-        -vector~ICommand*~ helperCommands
+        -ICommand* active                  // command đang nhận event
+        -stack~ICommand*~ stack           // các command tạm dừng (sleep)
+        -vector~ICommand*~ commands       // registry tất cả command
 
-        +RequestCommand(ICommand* cmd): bool
-        +ActivateCommand(ICommand* cmd): void
-        +FinishActiveCommand(): void
+        +Register(ICommand* cmd): void
+        +SetActive(const char* name): bool        // đổi "mode" chủ động (toolbar, hotkey)
+        +PushTemporary(ICommand* cmd): bool       // tạm thời ưu tiên hơn (VD: ViewRotate)
+        +PopTemporary(): void                     // kết thúc temporary, resume command cũ
+
         +DispatchMouseDown(event): bool
         +DispatchMouseMove(event): bool
         +DispatchMouseUp(event): bool
         +DispatchWheel(event): bool
-        +RegisterCommand(ICommand* cmd): void
     }
 
     ScreenEventHandler --> GestureDetector
     ScreenEventHandler --> CommandManager
     GestureDetector ..> GestureType
-
     CommandManager --> ICommand
-    ICommand ..> MouseActionState
-    ICommand ..> CommandType
     ICommand ..> MouseButton
-```
 
 ```mermaid
 classDiagram
