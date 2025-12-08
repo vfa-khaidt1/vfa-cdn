@@ -11,6 +11,14 @@ When a mouse event is received, MouseCommandManager:
 
 ```mermaid
 classDiagram
+    class MouseEventType {
+        <<enumeration>>
+        Down
+        Move
+        Up
+        Wheel
+    }
+    
     class MouseButton {
         <<enumeration>>
         Left
@@ -35,6 +43,7 @@ classDiagram
     }
 
    class MouseEvent {
+        +MouseEventType type
         +MouseButton button
         +GestureType gesture
         +double x
@@ -105,11 +114,7 @@ classDiagram
 
         -CommandContext context
 
-        +DispatchMouseDown(MouseEvent e): CommandStatus
-        +DispatchMouseMove(MouseEvent e): CommandStatus
-        +DispatchMouseUp(MouseEvent e): CommandStatus
-        +DispatchWheel(MouseEvent e): CommandStatus
-
+        +DispatchEvent(MouseEvent e): CommandStatus
         +PushCommand(CommandType, ICommand): bool
     }
 
@@ -177,5 +182,107 @@ CommandStatus DispatchMouseDown(MouseEvent& e) {
 
         return CommandStatus::None;
     }
+```
+
+Event routing chart
+```mermaid
+flowchart TD
+    Start([Start: ScreenEventHandler receives Event]) --> SwitchEvent{Event Type?}
+
+    %% PHASE 0: GestureDetector
+    subgraph Phase0 [Phase 0: GestureDetector]
+        direction TB
+        
+        %% MOUSE DOWN
+        SwitchEvent -- OnMouseDown --> ResetState["startPos = currentPos <br/> dragActive = false"]
+        ResetState --> DetectNone1[return None]
+
+        %% MOUSE MOVE
+        SwitchEvent -- OnMouseMove --> CheckDragActive{dragActive == true?}
+        
+        CheckDragActive -- Yes --> DetectDrag1[return Drag]
+        
+        CheckDragActive -- No --> CalcDist["dist = length(currentPos - startPos)"]
+        CalcDist --> CheckThresh{dist > dragThresholdPx?}
+        
+        CheckThresh -- Yes --> SetActive[dragActive = true]
+        SetActive --> DetectDrag2[return Drag]
+        
+        CheckThresh -- No --> DetectNone2[return None]
+
+        %% MOUSE UP
+        SwitchEvent -- OnMouseUp --> CheckActiveUp{dragActive == true?}
+        
+        CheckActiveUp -- Yes --> DetectDragEnd["return Drag <br/> (Finish Drag)"]
+        CheckActiveUp -- No --> DetectClick[return Click]
+        
+        DetectDragEnd -.-> ResetInternal[reset internal state]
+        DetectClick -.-> ResetInternal
+
+        %% WHEEL
+        SwitchEvent -- OnWheel --> DetectWheel[return Wheel]
+    end
+
+    DetectNone1 & DetectNone2 --> SetEvtNone[e.gestureType = None]
+    DetectDrag1 & DetectDrag2 & DetectDragEnd --> SetEvtDrag[e.gestureType = Drag]
+    DetectClick --> SetEvtClick[e.gestureType = Click]
+    DetectWheel --> SetEvtWheel[e.gestureType = Wheel]
+
+    SetEvtNone & SetEvtDrag & SetEvtClick & SetEvtWheel --> InputCheck{Has runningCommand?}
+
+    %% PHASE 1: ACTIVE COMMAND
+    subgraph Phase1 [Phase 1: Active Command]
+        direction TB
+        InputCheck -- Yes --> DispatchRunning[runningCommand->OnEvent]
+        DispatchRunning --> CheckStatus{Status == Finished OR Cancel?}
+        CheckStatus -- Yes --> ResetRunning[runningCommand = nullptr]
+        CheckStatus -- No --> RetRunning[Return Status]
+        ResetRunning --> RetRunning
+    end
+
+    %% PHASE 2: HELPERS
+    subgraph Phase2 [Phase 2: Helpers]
+        InputCheck -- No --> LoopHelpers[Loop: helperCommands]
+        LoopHelpers --> HelperExec[helper->OnEvent]
+        HelperExec --> NextHelper{Next Helper?}
+        NextHelper -- Yes --> LoopHelpers
+        NextHelper -- No --> Phase3Entry
+    end
+
+    %% PHASE 3: VIEW LAYER
+    subgraph Phase3 [Phase 3: View Commands]
+        Phase3Entry([Start View Layer]) --> LoopView[Loop: viewCommands]
+        LoopView --> ViewExec[view->OnEvent]
+        ViewExec --> CheckViewStatus{Status == Running?}
+        CheckViewStatus -- Yes --> SetViewRunning[runningCommand = view]
+        SetViewRunning --> RetView[Return Running]
+        CheckViewStatus -- No --> NextView{Next View?}
+        NextView -- Yes --> LoopView
+        NextView -- No --> Phase4Entry
+    end
+
+    %% PHASE 4: PRIMARY LAYER
+    subgraph Phase4 [Phase 4: Primary Command]
+        Phase4Entry([Start Primary Layer]) --> CheckPrimary{Has primaryCommand?}
+        CheckPrimary -- Yes --> PrimaryExec[primaryCommand->OnEvent]
+        PrimaryExec --> CheckPrimStatus{Status == Running?}
+        
+        CheckPrimStatus -- Yes --> SetPrimRunning[runningCommand = primaryCommand]
+        CheckPrimStatus -- No --> CheckPrimFinish{Status == Finished?}
+        CheckPrimFinish -- Yes --> PrimEnd[primaryCommand->OnEnd]
+        CheckPrimFinish -- No --> RetPrim[Return Status]
+        
+        SetPrimRunning --> RetPrim
+        PrimEnd --> RetPrim
+        CheckPrimary -- No --> RetNone[Return None]
+    end
+
+    RetRunning --> End([End])
+    RetView --> End
+    RetPrim --> End
+    RetNone --> End
+
+    style Phase0 fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style Phase1 fill:#f9f1f1,stroke:#333,stroke-width:2px
 ```
 
