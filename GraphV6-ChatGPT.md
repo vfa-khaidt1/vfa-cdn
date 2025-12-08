@@ -15,21 +15,24 @@ classDiagram
         Drag
     }
 
-    class CommandType {
-        <<enumeration>>
-        HELPER
-        PRIMARY 
-        VIEW
+    class MouseEvent {
+        +MouseButton button
+        +GestureType gesture
+        +double x
+        +double y
+        +double dx
+        +double dy
+        +double wheelDelta
     }
 
     class ScreenEventHandler {
         -PointerState pointerState
         -GestureDetector gestureDetector
-        -CommandManager commandManager
-        +onMouseDown(event)
-        +onMouseMove(event)
-        +onMouseUp(event)
-        +onWheel(event)
+        -MouseCommandManager commandManager
+        +onMouseDown(rawEvent)
+        +onMouseMove(rawEvent)
+        +onMouseUp(rawEvent)
+        +onWheel(rawEvent)
     }
 
     class GestureDetector {
@@ -38,52 +41,48 @@ classDiagram
         -bool dragActive
         -double dragThresholdPx
         +reset()
-        +onMouseDown(event)
-        +onMouseMove(event)
-        +onMouseUp(event)
+        +onMouseDown(rawEvent)
+        +onMouseMove(rawEvent)
+        +onMouseUp(rawEvent)
         +getGestureType(): GestureType
     }
 
     class ICommand {
         <<interface>>
-        -const char* name
-        -CommandType type
-        -int priority       // VIEW > PRIMARY > HELPER (tuỳ anh định nghĩa)
-        -bool enabled
-        +OnStart()
-        +OnEnd()
-        +OnCancel()
-        +OnMouseDown(event): bool
-        +OnMouseMove(event): bool
-        +OnMouseUp(event): bool
-        +OnWheel(event): bool
+        +const char* GetName() const
+        +bool IsEnabled() const
+        +void OnStart()      // optional, khi được chọn làm primary mode
+        +void OnEnd()
+        +bool OnMouseDown(MouseEvent e)
+        +bool OnMouseMove(MouseEvent e)
+        +bool OnMouseUp(MouseEvent e)
+        +bool OnWheel(MouseEvent e)
     }
 
-    class CommandManager {
-        -ICommand* active              // command đang nhận event
-        -ICommand* suspended           // command bị tạm dừng (sleep)
-        -vector~ICommand*~ commands    // registry
+    class MouseCommandManager {
+        -ICommand* viewCommand      // xoay / pan / zoom
+        -ICommand* primaryCommand   // DistanceMeasure, AreaMeasure...
+        -ICommand* helperCommand    // hover, highlight...
+        -vector~ICommand*~ registry // để UI chọn bằng name nếu cần
 
         +Register(ICommand* cmd): void
-        +SetActive(const char* name): bool      // đổi mode (toolbar, hotkey)
+        +SetViewCommand(ICommand* cmd): void
+        +SetPrimaryCommand(ICommand* cmd): void   // đổi mode đo từ toolbar
+        +SetHelperCommand(ICommand* cmd): void
 
-        // tạm thời override, vd: ViewRotate trong lúc đang đo
-        +BeginTemporary(ICommand* cmd): bool    
-        +EndTemporary(): void                   
-
-        +DispatchMouseDown(event): bool
-        +DispatchMouseMove(event): bool
-        +DispatchMouseUp(event): bool
-        +DispatchWheel(event): bool
+        +DispatchMouseDown(MouseEvent e): bool
+        +DispatchMouseMove(MouseEvent e): bool
+        +DispatchMouseUp(MouseEvent e): bool
+        +DispatchWheel(MouseEvent e): bool
     }
 
     ScreenEventHandler --> GestureDetector
-    ScreenEventHandler --> CommandManager
+    ScreenEventHandler --> MouseCommandManager
     GestureDetector ..> GestureType
 
-    CommandManager --> ICommand
+    MouseCommandManager --> ICommand
     ICommand ..> MouseButton
-    ICommand ..> CommandType
+
 
 ```
 
