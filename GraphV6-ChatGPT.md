@@ -18,28 +18,18 @@ classDiagram
     class CommandType {
         <<enumeration>>
         HELPER
-        PRIMARY
+        PRIMARY 
         VIEW
     }
 
-    class CommandState {
-        <<enumeration>>
-        Idle
-        Running
-        WaitingInput
-        Completed
-        Cancelled
-    }
-
     class MouseActionState {
-        -success : bool
-        -isBlock : bool
+        -bool handled
     }
 
     class ScreenEventHandler {
-        -pointerState : PointerState
-        -gestureDetector : GestureDetector
-        -commandManager : MouseCommandManager
+        -PointerState pointerState
+        -GestureDetector gestureDetector
+        -CommandManager commandManager
         +onMouseDown(event)
         +onMouseMove(event)
         +onMouseUp(event)
@@ -47,63 +37,58 @@ classDiagram
     }
 
     class GestureDetector {
-        -startPos : vec2
-        -startTimeMs : double
-        -dragActive : bool
-        -dragThresholdPx : double
+        -vec2 startPos
+        -double startTimeMs
+        -bool dragActive
+        -double dragThresholdPx
         +reset()
         +onMouseDown(event)
         +onMouseMove(event)
         +onMouseUp(event)
-        +getGestureType() : GestureType
+        +getGestureType(): GestureType
     }
 
     class ICommand {
         <<interface>>
-        -name : string
-        -type : CommandType
-        -enabled : bool
-        -priority : int
-        -state : CommandState
-        +getPriority() : int
-        +getType() : CommandType
-        +getState() : CommandState
-        +onStart()
-        +onEnd()
-        +onCancel()
-        +onMouseDown(event) : MouseActionState
-        +onMouseMove(event) : MouseActionState
-        +onMouseUp(event) : MouseActionState
-        +onWheel(event) : MouseActionState
+        -const char* name
+        -CommandType type
+        -bool enabled
+        -int priority
+        +GetPriority() const: int
+        +OnStart()
+        +OnEnd()
+        +OnCancel()
+        +OnMouseDown(event): MouseActionState
+        +OnMouseMove(event): MouseActionState
+        +OnMouseUp(event): MouseActionState
+        +OnWheel(event): MouseActionState
     }
 
-    class MouseCommandManager {
-        -primaryCommands : List_ICommand
-        -viewCommands : List_ICommand
-        -helperCommands : List_ICommand
-        -activePrimary : ICommand
-        -activeView : ICommand
-        -activeHelpers : List_ICommand
-        +dispatchMouseDown(event) : bool
-        +dispatchMouseMove(event) : bool
-        +dispatchMouseUp(event) : bool
-        +dispatchWheel(event) : bool
-        +pushCommand(type : CommandType, cmd : ICommand) : bool
-        +setActivePrimary(cmd : ICommand)
-        +cancelActivePrimary()
+    class CommandManager {
+        -ICommand* activeCommand
+        -stack~ICommand*~ suspendedCommands
+        -vector~ICommand*~ primaryCommands
+        -vector~ICommand*~ viewCommands
+        -vector~ICommand*~ helperCommands
+
+        +RequestCommand(ICommand* cmd): bool
+        +ActivateCommand(ICommand* cmd): void
+        +FinishActiveCommand(): void
+        +DispatchMouseDown(event): bool
+        +DispatchMouseMove(event): bool
+        +DispatchMouseUp(event): bool
+        +DispatchWheel(event): bool
+        +RegisterCommand(ICommand* cmd): void
     }
 
     ScreenEventHandler --> GestureDetector
-    ScreenEventHandler --> MouseCommandManager
-
+    ScreenEventHandler --> CommandManager
     GestureDetector ..> GestureType
-    MouseCommandManager ..> CommandType
-    MouseCommandManager --> ICommand
 
+    CommandManager --> ICommand
     ICommand ..> MouseActionState
     ICommand ..> CommandType
     ICommand ..> MouseButton
-    ICommand ..> CommandState
 ```
 
 ```mermaid
