@@ -13,6 +13,7 @@ classDiagram
         None
         Click
         Drag
+        Wheel
     }
 
     class CommandType {
@@ -73,9 +74,8 @@ classDiagram
     class ICommand {
         <<interface>>
         -const char* name
-        -CommandType type
+        -MouseButton mouseButton
         -bool isEnable 
-        -int priority
         -IConmand(CommandContext context)
         +GetPriority() const: int // index
         +OnStart()
@@ -110,7 +110,7 @@ classDiagram
     ICommand ..> CommandStatus : returns
     ICommand ..> CommandType
     ICommand ..> CommandContext : uses
-    ICommand ..> CommandContext : uses
+    ICommand ..> MouseButton : holds
     ICommand ..> MouseEvent : input
 
 ```
