@@ -15,6 +15,13 @@ classDiagram
         Drag
     }
 
+    class CommandType {
+        <<enumeration>>
+        HELPER
+        PRIMARY 
+        VIEW
+    }
+
     class ScreenEventHandler {
         -PointerState pointerState
         -GestureDetector gestureDetector
@@ -40,7 +47,8 @@ classDiagram
     class ICommand {
         <<interface>>
         -const char* name
-        -int priority      // càng cao càng "quan trọng" (VD: ViewRotate > Measure)
+        -CommandType type
+        -int priority       // VIEW > PRIMARY > HELPER (tuỳ anh định nghĩa)
         -bool enabled
         +OnStart()
         +OnEnd()
@@ -52,14 +60,16 @@ classDiagram
     }
 
     class CommandManager {
-        -ICommand* active                  // command đang nhận event
-        -stack~ICommand*~ stack           // các command tạm dừng (sleep)
-        -vector~ICommand*~ commands       // registry tất cả command
+        -ICommand* active              // command đang nhận event
+        -ICommand* suspended           // command bị tạm dừng (sleep)
+        -vector~ICommand*~ commands    // registry
 
         +Register(ICommand* cmd): void
-        +SetActive(const char* name): bool        // đổi "mode" chủ động (toolbar, hotkey)
-        +PushTemporary(ICommand* cmd): bool       // tạm thời ưu tiên hơn (VD: ViewRotate)
-        +PopTemporary(): void                     // kết thúc temporary, resume command cũ
+        +SetActive(const char* name): bool      // đổi mode (toolbar, hotkey)
+
+        // tạm thời override, vd: ViewRotate trong lúc đang đo
+        +BeginTemporary(ICommand* cmd): bool    
+        +EndTemporary(): void                   
 
         +DispatchMouseDown(event): bool
         +DispatchMouseMove(event): bool
@@ -70,8 +80,11 @@ classDiagram
     ScreenEventHandler --> GestureDetector
     ScreenEventHandler --> CommandManager
     GestureDetector ..> GestureType
+
     CommandManager --> ICommand
     ICommand ..> MouseButton
+    ICommand ..> CommandType
+
 ```
 
 ```mermaid
