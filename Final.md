@@ -123,10 +123,11 @@ CommandStatus DispatchMouseDown(MouseEvent& e) {
         if(runningCommand!=nullptr)
         {    
             CommandStatus status = runningCommand->OnMouseDown(e);
-            if (status == CommandStatus::Finished || status == CommandStatus::Cancel) {
+            if (status == CommandStatus::Finished || status == CommandStatus::Canceled) {
                 runningCommand = nullptr;
-            }
-            return status; 
+                // Allow event from go down below
+            } else if (status == CommandStatus::Running )
+                return status; // Stop event from go down below
         }
     
         // [LAYER 1] Helper
