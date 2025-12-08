@@ -107,14 +107,14 @@ classDiagram
 
 
     class MouseCommandManager {
-        -ICommand* runningCommand // current running command, If not null it will block event rundown other commands below
+        -ICommand* runningCommand // current running command, will block event rundown commands below
         -vector~ICommand~ helperCommands // Snap, Highlight
         -vector~ICommand~ viewCommands // Multiple view command can run Pan/ Rotate/ Wheel mouse zoom.
         -ICommand* primaryCommand // 1 primary command at a time
 
         -CommandContext context
 
-        +DispatchEvent(MouseEvent e): CommandStatus
+        +DispatchEvent(MouseEvent e): CommandStatus // DispatchMouseDown, DispatchMouseUp, DispatchWheel....
         +PushCommand(CommandType, ICommand): bool
     }
 
