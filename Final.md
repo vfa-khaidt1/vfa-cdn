@@ -90,9 +90,10 @@ classDiagram
 
     class MouseCommandManager {
         -ICommand* runningCommand // current running command
-        -ICommand* primaryCommand // 1 primary command at a time
-        -vector~ICommand~ viewCommands // Multiple view command can run Pan/ Rotate/ Wheel mouse zoom.
         -vector~ICommand~ helperCommands // Snap, Highlight
+        -vector~ICommand~ viewCommands // Multiple view command can run Pan/ Rotate/ Wheel mouse zoom.
+        -ICommand* primaryCommand // 1 primary command at a time
+
         -CommandContext context
 
         +DispatchMouseDown(MouseEvent e): CommandStatus
