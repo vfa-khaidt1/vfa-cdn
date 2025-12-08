@@ -131,7 +131,11 @@ CommandStatus DispatchMouseDown(MouseEvent& e) {
     
         // [LAYER 1] Helper
         for (auto helper : helperCommands) {
-            helper->OnMouseDown(e); 
+             CommandStatus status =helper->OnMouseDown(e);
+             if (status == CommandStatus::Running) {
+                runningCommand = helper;
+                return status; 
+            }
         }
 
         // [LAYER 2] View Commands (Pan, Rotate)
