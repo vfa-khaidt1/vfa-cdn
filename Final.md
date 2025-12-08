@@ -1,3 +1,14 @@
+MouseCommandManager manages three layers of commands:
+- Helper commands (e.g. snap, highlight)
+- View commands (e.g. pan, rotate, wheel zoom)
+- a single active Primary command (e.g. distance measurement, selection) 
+It also keeps a single runningCommand, which captures subsequent events while it is in the Running state and blocks them from going down to lower layers.
+
+When a mouse event is received, MouseCommandManager:
+1 Send event to runningCommand (if not null). If result == Running → stop.
+2 Else dispatch to below commands in order: Helper → View → Primary.
+3 If a command that returns Running state. Set as new runningCommand.
+
 ```mermaid
 classDiagram
     class MouseButton {
@@ -44,9 +55,6 @@ classDiagram
     class CommandContext {
         +Camera camera
         +App app
-        +ProjectPoint(screenPos): vec2
-        +UnprojectPoint(worldPos): vec2
-        +Redraw()
     }
 
     class ScreenEventHandler {
@@ -68,6 +76,7 @@ classDiagram
         +onMouseDown(event)
         +onMouseMove(event)
         +onMouseUp(event)
+        +onWheel(event)
         +getGestureType(): GestureType
     }
 
@@ -116,6 +125,9 @@ classDiagram
     ICommand ..> MouseEvent : input
 
 ```
+
+
+Here is the example of a mouse event routing
 
 ```
 CommandStatus DispatchMouseDown(MouseEvent& e) {
@@ -167,110 +179,3 @@ CommandStatus DispatchMouseDown(MouseEvent& e) {
     }
 ```
 
-```mermaid
-flowchart TB
-    Event[Mouse event for this button]
-    End[End]
-    subgraph CommandList
-        FirstCommand
-        Block1{Block?}
-        SecondCommand
-        Block2{Block?}
-        ThirdCommand
-    end
-
-
-    Event --> FirstCommand
-    FirstCommand -->Block1 --> |No| SecondCommand
-    Block1 --> |Yes| End
-    SecondCommand -->Block2 --> |No| ThirdCommand
-    Block2 --> |Yes| End
-    ThirdCommand --> End
-```
-
-```mermaid
-classDiagram
-   class CommandState {
-        <<enumeration>>
-        IDLE
-        ACTIVE
-        WAITING_INPUT
-        EXECUTING
-        COMPLETED
-        CANCELLED
-    }
-      class ICommand {
-        <<interface>>
-        +Name() const: const char*
-        +OnStart()
-        +OnEnd()
-        +OnCancel()
-        +OnMouseDown(event): MouseActionState
-        +OnMouseMove(event): MouseActionState
-        +OnMouseUp(event): MouseActionState
-        +OnWheel(event): MouseActionState
-    }
-   class StatefulCommand {
-        <<abstract>>
-        -CommandState _state
-        -StateMachine* _stateMachine
-        +GetState(): CommandState
-        +TransitionTo(state)
-        #onStateEnter(state)*
-        #onStateExit(state)*
-    }
-    
-    class DistanceMeasureCommand {
-        -vec3 _startWorld
-        -vec3 _endWorld
-        -bool _hasStart
-        #onStateEnter(state)
-        #onStateExit(state)
-    }
-    
-    class AreaMeasureCommand {
-        -vector~vec3~ _points
-        -bool _isClosed
-    }
-    
-    class LineDrawingCommand {
-        -vector~vec3~ _points
-        -bool _continuous
-        +ContinueDrawing()
-    }
-    
-    class RotateNavigationCommand {
-        -Camera* _camera
-    }
-    
-    class PanNavigationCommand {
-        -Camera* _camera
-    }
-    
-    class ZoomNavigationCommand {
-        -Camera* _camera
-        +OnWheel(delta)
-    }
-    
-    class SnapToMidpointCommand {
-        -vec3 _point1
-        -vec3 _point2
-        +GetMidpoint(): vec3
-    }
-    
-    class HoverHighlightCommand {
-        -Color _originalColor
-        -Color _highlightColor
-        +OnMouseMove(event)
-    }
-
-    ICommand <|.. StatefulCommand
-    StatefulCommand <|-- DistanceMeasureCommand
-    StatefulCommand <|-- AreaMeasureCommand
-    StatefulCommand <|-- LineDrawingCommand
-    ICommand <|.. RotateNavigationCommand
-    ICommand <|.. PanNavigationCommand
-    ICommand <|.. ZoomNavigationCommand
-    ICommand <|.. SnapToMidpointCommand
-    ICommand <|.. HoverHighlightCommand
-```
