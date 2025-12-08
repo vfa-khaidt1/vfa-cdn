@@ -122,7 +122,7 @@ CommandStatus DispatchMouseDown(MouseEvent& e) {
         // If has running command
         if(runningCommand!=null)
         {    
-            CommandStatus status = view->OnMouseDown(e);
+            CommandStatus status = runningCommand->OnMouseDown(e);
             if (status == CommandStatus::Finished || status == CommandStatus::Cancel) {
                 runningCommand = nullPtr;
             }
