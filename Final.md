@@ -5,9 +5,9 @@ MouseCommandManager manages three layers of commands:
 It also keeps a single runningCommand, which captures subsequent events while it is in the Running state and blocks them from going down to lower layers.
 
 When a mouse event is received, MouseCommandManager:
-1 Send event to runningCommand (if not null). If result == Running → stop.
-2 Else dispatch to below commands in order: Helper → View → Primary.
-3 If a command that returns Running state. Set as new runningCommand.
+1. Send event to runningCommand (if not null). If result == Running → stop.
+2. Else dispatch to below commands in order: Helper → View → Primary.
+3. If a command that returns Running state. Set as new runningCommand.
 
 ```mermaid
 classDiagram
