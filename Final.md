@@ -89,7 +89,7 @@ classDiagram
 
 
     class MouseCommandManager {
-        -ICommand* runningCommand //running command (Capture)
+        -ICommand* runningCommand // current running command
         -ICommand* primaryCommand // 1 primary command at a time
         -vector~ICommand~ viewCommands // Multiple view command can run Pan/ Rotate/ Wheel mouse zoom.
         -vector~ICommand~ helperCommands // Snap, Highlight
