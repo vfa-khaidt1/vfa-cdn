@@ -362,7 +362,6 @@ classDiagram
 
     ICommand <|-- DistanceMeasureCommand
     ICommand <|-- AreaMeasureCommand
-    ICommand <|-- LineDrawingCommand
     ICommand <|-- DebugCommand
     ICommand <|-- ContextMenuCommand
     ICommand <|.. RotateNavigationCommand
