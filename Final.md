@@ -316,6 +316,8 @@ classDiagram
         +RubberBandManager rubberBand
         +ShowContextMenu(vector~ContextMenuItem~ items, vec2 screenPos, ICommand* owner)
         +HideContextMenu()
+        +CalcuateDistance(vec3 start, vec3 end): float
+        +CalcuateArea(vector~vec3~ points): float      
     }
     class DistanceMeasureCommand {
         -bool hasFirstPoint
