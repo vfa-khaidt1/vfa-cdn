@@ -286,3 +286,87 @@ flowchart TD
     style Phase1 fill:#f9f1f1,stroke:#333,stroke-width:2px
 ```
 
+```mermaid
+classDiagram
+    class ICommand {
+        <<interface>>
+        -const char* name
+        -MouseButton mouseButton
+        -bool isEnable 
+        -IConmand(CommandContext context)
+        +GetPriority() const: int // index
+        +OnStart()
+        +OnEnd()
+        +OnCancel()
+        +OnMouseDown(MouseEvent e): CommandStatus
+        +OnMouseMove(MouseEvent e): CommandStatus
+        +OnMouseUp(MouseEvent e): CommandStatus
+        +OnWheel(MouseEvent e): CommandStatus
+    }
+    
+    class DistanceMeasureCommand {
+        -bool hasFirstPoint
+        -vec3 firstPoint
+        -vec3 currentPoint
+        +OnStart()
+        +OnMouseDown(MouseEvent e): CommandStatus
+        +OnMouseMove(MouseEvent e): CommandStatus
+        +OnEnd()
+        -UpdateRubberBandLine()
+    }
+
+    class AreaMeasureCommand {
+        -vector~vec3~ points
+        +OnStart()
+        +OnMouseDown(MouseEvent e): CommandStatus
+        +OnMouseMove(MouseEvent e): CommandStatus
+        +OnEnd()
+        -UpdateRubberBandPolygon()
+    }
+
+    class DebugCommand {
+        -int clickCount
+        +OnStart()
+        +OnMouseDown(MouseEvent e): CommandStatus
+        +GetContextMenuItems(): vector~ContextMenuItem~
+        +OnContextMenuItemClicked(string itemId)
+    }
+
+    class ContextMenuCommand {
+        -ICommand* targetCommand  // command whose menu is shown
+        -vector~ContextMenuItem~ currentItems
+        +OnStart()
+        +OnMouseDown(MouseEvent e): CommandStatus
+        +OnContextMenuItemClicked(string itemId)
+        +GetContextMenuItems(): vector~ContextMenuItem~ // usually empty; it shows target's items
+    }
+
+    class RotateNavigationCommand {
+        -Camera* _camera
+    }
+    
+    class PanNavigationCommand {
+        -Camera* _camera
+    }
+    
+    class ZoomNavigationCommand {
+        -Camera* _camera
+        +OnWheel(delta)
+    }
+    
+    class HoverHighlightCommand {
+        -Color _originalColor
+        -Color _highlightColor
+        +OnMouseMove(event)
+    }
+
+    ICommand <|-- DistanceMeasureCommand
+    ICommand <|-- AreaMeasureCommand
+    ICommand <|-- LineDrawingCommand
+    ICommand <|-- DebugCommand
+    ICommand <|-- ContextMenuCommand
+    ICommand <|.. RotateNavigationCommand
+    ICommand <|.. PanNavigationCommand
+    ICommand <|.. ZoomNavigationCommand
+    ICommand <|.. HoverHighlightCommand
+```
