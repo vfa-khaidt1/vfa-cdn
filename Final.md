@@ -303,7 +303,20 @@ classDiagram
         +OnMouseUp(MouseEvent e): CommandStatus
         +OnWheel(MouseEvent e): CommandStatus
     }
-    
+
+    class RubberBandManager {
+        +ShowLine(vec3 start, vec3 end)
+        +ShowPolyline(vector~vec3~ points)
+        +Clear()
+    }
+
+    class CommandContext {
+        +Camera camera
+        +App app
+        +RubberBandManager rubberBand
+        +ShowContextMenu(vector~ContextMenuItem~ items, vec2 screenPos, ICommand* owner)
+        +HideContextMenu()
+    }
     class DistanceMeasureCommand {
         -bool hasFirstPoint
         -vec3 firstPoint
@@ -328,17 +341,6 @@ classDiagram
         -int clickCount
         +OnStart()
         +OnMouseDown(MouseEvent e): CommandStatus
-        +GetContextMenuItems(): vector~ContextMenuItem~
-        +OnContextMenuItemClicked(string itemId)
-    }
-
-    class ContextMenuCommand {
-        -ICommand* targetCommand  // command whose menu is shown
-        -vector~ContextMenuItem~ currentItems
-        +OnStart()
-        +OnMouseDown(MouseEvent e): CommandStatus
-        +OnContextMenuItemClicked(string itemId)
-        +GetContextMenuItems(): vector~ContextMenuItem~ // usually empty; it shows target's items
     }
 
     class RotateNavigationCommand {
@@ -360,6 +362,22 @@ classDiagram
         +OnMouseMove(event)
     }
 
+
+    class ContextMenuCommand {
+        -vector~ContextMenuItem~ currentItems
+        +OnStart()
+        +OnMouseDown(MouseEvent e): CommandStatus
+        +OnContextMenuItemClicked(string itemId)
+        +GetContextMenuItems(): vector~ContextMenuItem~ 
+    }
+
+
+    class ContextMenuItem {
+        +string id
+        +string label
+        +bool enabled
+    }
+
     ICommand <|-- DistanceMeasureCommand
     ICommand <|-- AreaMeasureCommand
     ICommand <|-- DebugCommand
@@ -368,4 +386,10 @@ classDiagram
     ICommand <|.. PanNavigationCommand
     ICommand <|.. ZoomNavigationCommand
     ICommand <|.. HoverHighlightCommand
+
+    ContextMenuCommand  --> CommandContext
+    DistanceMeasureCommand --> CommandContext
+    AreaMeasureCommand --> CommandContext
+    CommandContext --> RubberBandManager
+    ContextMenuCommand --> ContextMenuItem
 ```
