@@ -41,10 +41,10 @@ classDiagram
         -ApplyPlaneAndSlice() void
     }
 
-    CrossSectionManager "1" o-- "1" CuttingPlane
-    CrossSectionManager "1" o-- "1" CrossSectionResult
-    CommandContext "1" o-- "1" CrossSectionManager
-    CrossSectionCommand "1" --> "1" CommandContext
+    CrossSectionManager  <--  CuttingPlane
+    CrossSectionManager  <--  CrossSectionResult
+    CommandContext  <--  CrossSectionManager
+    CrossSectionCommand  -->  CommandContext
 
 ```
 
