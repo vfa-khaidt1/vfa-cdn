@@ -1,3 +1,6 @@
+
+I've updated the class diagram of CrossSection:
+
 Class Diagram
 ```mermaid
 classDiagram
@@ -49,7 +52,7 @@ classDiagram
 
 ```
 
-CuttingPlane Structure
+CrossSectionManager Structure
 ```
 //  Data Structure for the Slicing Plane
 struct CuttingPlane {
@@ -96,6 +99,8 @@ struct CommandContext {
     //...
 };
 ```
+
+CrossSectionCommand
 
 ```
 class CrossSectionCommand : public ICommand {
