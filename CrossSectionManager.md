@@ -2,47 +2,55 @@ CuttingPlane Structure
 ```
 //  Data Structure for the Slicing Plane
 struct CuttingPlane {
+    glm::vec3 point1{0.0f, 0.0f, 0.0f};
+    glm::vec3 point2{0.0f, 0.0f, 0.0f};
     glm::vec3 center{0.0f, 0.0f, 0.0f};
     glm::vec3 normal{0.0f, 0.0f, 1.0f};
 
     // width and height of the plane 
     glm::vec2 extentSize = glm::vec2(100.0f, 80.0f);
-    float thickness
+    float thickness;
     float zoomLevel = 1.0f;     
 };
 
 // Contain points data that in Cutting plane
-struct SlicedPointsData {     
+struct CrossSectionResult {     
         std::vector<Point>  _points;
 };
 
 class CrossSectionManager {
 public:
     CuttingPlane activePlane; 
-    SlicedPointsData slicedData;
+    CrossSectionResult  lastResult;
 
-    SlicedPointsData BuildSliceForPlane() {
-        slicedData = CalculatePointsInAPlane(CuttingPlane plane)
-        return slicedData
+    CrossSectionResult BuildSliceForPlane() {
+        lastResult = CalculatePointsInAPlane(activePlane);
+        return lastResult
     }
 
-    void UpdateCrossSectionView(SlicedPointsData data) {
-         // Update view , Passing Points data to renderer
+    void UpdateCrossSectionView(const CrossSectionResult& data) {
+        // Update view , Passing Points data to renderer
+        // Render active Plane
     }
+private:
+    CrossSectionResult CalculatePointsInAPlane(const CuttingPlane& plane);
 };
 
 // CommandContext remains the same
 struct CommandContext {
     RubberBandManager* rubberBand;
     CrossSectionManager* crossSectionManager;
-    // ... (GetWorldPoint implementation)
+
+    glm::vec3 pickNearestPoint(double x, double y);
+    //...
 };
 ```
 
 ```
 class CrossSectionCommand : public ICommand {
 private:
-    glm::vec3 mP1(0.0f), m_P2(0.0f);
+    glm::vec3 m_P1(0.0f), m_P2(0.0f);
+    State m_state;
     enum State {
         Idle,
         AwaitingP2,
@@ -51,10 +59,10 @@ private:
 
     void ApplyPlaneAndSlice() {
         //  Build slice
-        SlicedPointsData sliceData = m_context.crossSectionManager->BuildSliceForPlane();
+        CrossSectionResult slicedResult = m_context.crossSectionManager->BuildSliceForPlane();
         
         // Update cross section view, passing data to renderer
-        m_context.crossSectionManager->UpdateCrossSectionView(sliceData);
+        m_context.crossSectionManager->UpdateCrossSectionView(slicedResult);
     }
 
 public:
@@ -84,12 +92,14 @@ public:
             case Idle: // Waiting for first ppint
             {
                 m_P1 = clickPoint;
+                plane.point1 = m_P1;
                 m_state = AwaitingP2;
                 break;
             }
             case AwaitingP2: // Waiting for 2nd ppint
             {
                 m_P2 = clickPoint;
+                plane.point1 = m_P2;
                 glm::vec3 dir = m_P2 - m_P1;
                 plane.normal = glm::normalize(dir);
                 plane.center = m_P1;
@@ -126,7 +136,7 @@ public:
             
             ApplyPlaneAndSlice();
         }
-        return CommandStatus::Running;
+        return CommandStatus::Finished;
     }
 };
 ```
