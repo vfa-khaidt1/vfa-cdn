@@ -1,3 +1,53 @@
+Class Diagram
+```mermaid
+classDiagram
+    class CuttingPlane {
+        +glm::vec3 point1
+        +glm::vec3 point2
+        +glm::vec3 center
+        +glm::vec3 normal
+        +glm::vec2 extentSize
+        +float thickness
+        +float zoomLevel
+    }
+
+    class CrossSectionResult {
+        +std::vector<Point> _points
+    }
+
+    class CrossSectionManager {
+        +CuttingPlane activePlane
+        +CrossSectionResult lastResult
+        +BuildSliceForPlane() CrossSectionResult
+        +UpdateCrossSectionView(data: CrossSectionResult) void
+        -CalculatePointsInAPlane(plane: CuttingPlane) CrossSectionResult
+    }
+
+    class CommandContext {
+        +RubberBandManager* rubberBand
+        +CrossSectionManager* crossSectionManager
+        +pickNearestPoint(x: double, y: double) glm::vec3
+    }
+
+    class CrossSectionCommand {
+        -glm::vec3 m_P1
+        -glm::vec3 m_P2
+        -State m_state
+        +OnStart() void
+        +OnEnd() void
+        +OnMouseUp(e: MouseEvent) CommandStatus
+        +OnMouseMove(e: MouseEvent) CommandStatus
+        +OnWheel(e: MouseEvent) CommandStatus
+        -ApplyPlaneAndSlice() void
+    }
+
+    CrossSectionManager "1" o-- "1" CuttingPlane
+    CrossSectionManager "1" o-- "1" CrossSectionResult
+    CommandContext "1" o-- "1" CrossSectionManager
+    CrossSectionCommand "1" --> "1" CommandContext
+
+```
+
 CuttingPlane Structure
 ```
 //  Data Structure for the Slicing Plane
