@@ -1,8 +1,6 @@
 
 Class for DistanceMeasureCommand
 ```
-#include "MeasurementService.h"
-
 class DistanceMeasureCommand : public ICommand {
 private:
     bool m_hasFirstPoint = false;
@@ -45,8 +43,8 @@ public:
             } else {
                 // Set End Point & Calculate
                 auto result = MeasurementService::MeasureDistance(m_firstPoint, hitPoint);                
-                
-                // Option A: Finish immediately
+
+                // Update distance
                 return CommandStatus::Finished; 
                 
             }
@@ -91,6 +89,7 @@ public:
             if (m_points.size() >= 3) {
                 auto res = MeasurementService::MeasureArea(m_points);
                 if (res) {
+                    // Update area here
                      printf("Area: %f, res->area);
                 }
             }
@@ -99,5 +98,27 @@ public:
 
         return CommandStatus::None;
     }
+};
+```
+MeasurementService
+
+```
+class MeasurementService {
+public:
+    struct DistanceResult {
+        double length = 0.0;
+        glm::vec3 start{}, end{};
+    };
+
+    struct AreaResult {
+        double area = 0.0;
+        double perimeter = 0.0;
+        glm::vec3 normal{};
+        std::vector<glm::vec3> vertices;
+    };
+
+    static DistanceResult MeasureDistance(const glm::vec3& start, const glm::vec3& end);
+
+    static std::optional<AreaResult> MeasureArea(const std::vector<glm::vec3>& vertices);
 };
 ```
