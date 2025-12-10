@@ -16,11 +16,12 @@ classDiagram
     }
 
     class CrossSectionManager {
+        +PointCloudModel* sourceCloud;
         +CuttingPlane activePlane
         +CrossSectionResult lastResult
         +BuildSliceForPlane() CrossSectionResult
         +UpdateCrossSectionView(data: CrossSectionResult) void
-        -CalculatePointsInAPlane(plane: CuttingPlane) CrossSectionResult
+        -CalculatePointsInAPlane(plane: CuttingPlane, srcCloud: PointCloudModel) CrossSectionResult
     }
 
     class CommandContext {
@@ -72,9 +73,9 @@ class CrossSectionManager {
 public:
     CuttingPlane activePlane; 
     CrossSectionResult  lastResult;
-
+    const PointCloudModel* sourceCloud{nullptr};
     CrossSectionResult BuildSliceForPlane() {
-        lastResult = CalculatePointsInAPlane(activePlane);
+        lastResult = CalculatePointsInAPlane(activePlane, sourceCloud);
         return lastResult
     }
 
@@ -83,7 +84,7 @@ public:
         // Render active Plane
     }
 private:
-    CrossSectionResult CalculatePointsInAPlane(const CuttingPlane& plane);
+    CrossSectionResult CalculatePointsInAPlane(const CuttingPlane& plane, const PointCloudModel& srcCloud);
 };
 
 // CommandContext remains the same
