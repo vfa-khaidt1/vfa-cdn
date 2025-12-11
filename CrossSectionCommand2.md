@@ -28,22 +28,6 @@ classDiagram
         Completed
     }
 
-    class DistanceMeasureCommand {
-        -glm::vec3 m_startPoint
-        +OnStart()
-        +OnEnd()
-        #OnPointPicked(worldPoint: glm::vec3): CommandStatus
-        #OnHoverPoint(worldPoint: glm::vec3): CommandStatus
-    }
-
-    class AreaMeasureCommand {
-        -std::vector<glm::vec3> m_points
-        +OnStart()
-        +OnEnd()
-        #OnPointPicked(worldPoint: glm::vec3): CommandStatus
-        #OnHoverPoint(worldPoint: glm::vec3): CommandStatus
-    }
-
     class CuttingPlane {
         +glm::vec3 point1
         +glm::vec3 point2
@@ -85,52 +69,16 @@ classDiagram
         +pickNearestPoint(x: double, y: double): glm::vec3
     }
 
-    class RubberBandManager {
-        +Clear()
-        +ShowLine(a: glm::vec3, b: glm::vec3)
-        +ShowPolyline(points: std::vector<glm::vec3>, hover: glm::vec3)
-    }
-
-    class MeasurementService {
-        +MeasureDistance(start: glm::vec3, end: glm::vec3): DistanceResult
-        +MeasureArea(vertices: std::vector<glm::vec3>): std::optional~AreaResult~
-    }
-
-    class MouseEvent {
-        +MouseButton button
-        +GestureType gesture
-        +double x
-        +double y
-        +double wheelDelta
-    }
-
-    class CommandStatus {
-        <<enumeration>>
-        None
-        Running
-        Finished
-        Cancelled
-    }
-
     ICommand <|-- CoordinatePickingCommand
-    CoordinatePickingCommand <|-- DistanceMeasureCommand
-    CoordinatePickingCommand <|-- AreaMeasureCommand
     CoordinatePickingCommand <|-- CrossSectionCommand
 
     CoordinatePickingCommand --> PickingState
 
     CoordinatePickingCommand --> CommandContext
-    CommandContext --> RubberBandManager
-    CommandContext --> CrossSectionManager
+    CrossSectionCommand --> CrossSectionManager
 
     CrossSectionManager --> CuttingPlane
     CrossSectionManager --> CrossSectionResult
-
-    DistanceMeasureCommand --> MeasurementService
-    AreaMeasureCommand --> MeasurementService
-
-```
-**CrossSectionManager** Structure
 ```
 
 **CrossSectionCommand** class
@@ -244,6 +192,8 @@ public:
 
 ```
 
+**CrossSectionManager** Structure
+```
 //  Data Structure for the Slicing Plane
 struct CuttingPlane {
     glm::vec3 point1{0.0f, 0.0f, 0.0f};
