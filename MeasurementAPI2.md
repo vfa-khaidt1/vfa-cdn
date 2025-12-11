@@ -207,7 +207,7 @@ protected:
         if (!m_points.empty()) {
             m_context.rubberBand->ShowPolyline(m_points, hoverPoint);
         }
-        return CommandStatus::Running;
+        return CommandStatus::Finished;
     }
 
     CommandStatus OnPointPicked(const glm::vec3& pickedPoint) override {
@@ -233,7 +233,7 @@ protected:
             return CommandStatus::Finished;
         }
 
-        return CommandStatus::Running;
+        return CommandStatus::None;
     }
 };
 ```
