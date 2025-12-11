@@ -122,3 +122,87 @@ public:
     static std::optional<AreaResult> MeasureArea(const std::vector<glm::vec3>& vertices);
 };
 ```
+
+```mermaid
+classDiagram
+    class ICommand {
+        <<interface>>
+        +OnStart()
+        +OnEnd()
+        +OnCancel()
+        +OnMouseMove(e: MouseEvent): CommandStatus
+        +OnMouseUp(e: MouseEvent): CommandStatus
+    }
+
+    class CoordinatePickingCommand {
+        <<abstract>>
+        #bool m_enableHover
+        #glm::vec3 m_lastHoverPoint
+        +OnMouseMove(e: MouseEvent): CommandStatus
+        +OnMouseUp(e: MouseEvent): CommandStatus
+        +HandlePointPicked(point: glm::vec3, e: MouseEvent) CommandStatus*
+        +HandleHover(point: glm::vec3, e: MouseEvent) CommandStatus*
+    }
+
+    class DistanceMeasureCommand {
+        -bool m_hasFirstPoint
+        -glm::vec3 m_firstPoint
+        +OnStart()
+        +OnEnd()
+        +HandlePointPicked(point: glm::vec3, e: MouseEvent): CommandStatus
+        +HandleHover(point: glm::vec3, e: MouseEvent): CommandStatus
+    }
+
+    class AreaMeasureCommand {
+        -std::vector<glm::vec3> m_points
+        +OnStart()
+        +OnEnd()
+        +HandlePointPicked(point: glm::vec3, e: MouseEvent): CommandStatus
+        +HandleHover(point: glm::vec3, e: MouseEvent): CommandStatus
+    }
+
+    class CommandContext {
+        +RubberBandManager* rubberBand
+        +glm::vec3 pickNearestPoint(x: double, y: double)
+    }
+
+    class MeasurementService {
+        +MeasureDistance(start: glm::vec3, end: glm::vec3): DistanceResult
+        +MeasureArea(vertices: std::vector<glm::vec3>): std::optional~AreaResult~
+    }
+
+    class RubberBandManager {
+        +Clear()
+        +ShowLine(a: glm::vec3, b: glm::vec3)
+        +ShowPolyline(points: std::vector<glm::vec3>, hover: glm::vec3)
+    }
+
+    class MouseEvent {
+        +MouseButton button
+        +GestureType gesture
+        +double x
+        +double y
+    }
+
+    class CommandStatus {
+        <<enumeration>>
+        None
+        Running
+        Finished
+        Cancelled
+    }
+
+    ICommand <|-- CoordinatePickingCommand
+    CoordinatePickingCommand <|-- DistanceMeasureCommand
+    CoordinatePickingCommand <|-- AreaMeasureCommand
+
+    CoordinatePickingCommand --> CommandContext
+    CommandContext --> RubberBandManager
+
+    DistanceMeasureCommand --> MeasurementService
+    AreaMeasureCommand --> MeasurementService
+
+    CoordinatePickingCommand --> MouseEvent
+    CoordinatePickingCommand --> CommandStatus
+
+```
