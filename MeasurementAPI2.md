@@ -9,15 +9,27 @@ classDiagram
         +OnMouseUp(e: MouseEvent): CommandStatus
     }
 
+     class PointerInputCommand {
+        <<abstract>>
+        +OnMouseMove(e: MouseEvent): CommandStatus
+        +OnMouseUp(e: MouseEvent): CommandStatus
+        +OnWheel(e: MouseEvent): CommandStatus
+        #OnClick(pos: vec2): CommandStatus*
+        #OnWheelInput(delta: float): CommandStatus
+        #OnHoverInput(pos: vec2): CommandStatus
+        #OnDrag(pos: vec2): CommandStatus
+    }
+
     class CoordinatePickingCommand {
         <<abstract>>
         #bool m_enableHover
         #PickingState m_state
-        +OnMouseMove(e: MouseEvent): CommandStatus
-        +OnMouseUp(e: MouseEvent): CommandStatus
         #ResetPickingState(): void
         #OnPointPicked(worldPoint: glm::vec3): CommandStatus*
         #OnHoverPoint(worldPoint: glm::vec3): CommandStatus
+        #OnClick(pos: vec2): CommandStatus
+        #OnHoverInput(pos: vec2): CommandStatus
+        #OnDrag(pos: vec2): CommandStatus
     }
 
     class PickingState {
@@ -74,7 +86,8 @@ classDiagram
         Cancelled
     }
 
-    ICommand <|-- CoordinatePickingCommand
+    ICommand <|-- PointerInputCommand
+    PointerInputCommand <|-- CoordinatePickingCommand
     CoordinatePickingCommand <|-- DistanceMeasureCommand
     CoordinatePickingCommand <|-- AreaMeasureCommand
 
@@ -87,7 +100,40 @@ classDiagram
     AreaMeasureCommand --> MeasurementService
 
 ```
+**Abstract class** 
+```
+class PointerInputCommand : public ICommand {
+protected:
+    virtual CommandStatus OnClick(const vec2 pos) = 0;
 
+    virtual CommandStatus OnWheelInput(const float delta) = 0;
+
+    virtual CommandStatus OnHoverInput(const vec2 pos) = 0;
+ 
+    virtual CommandStatus OnDrag(const vec2 pos) = 0;
+public:
+    using ICommand::ICommand;
+
+    CommandStatus OnMouseMove(const MouseEvent& e) override {
+        
+        if(e.IsDrag)
+            return OnDrag( e.x, e.y );
+        else
+            return OnHoverInput( e.x, e.y );
+    }
+
+    CommandStatus OnMouseUp(const MouseEvent& e) override {
+        if (e.gesture != GestureType::Click) 
+            return CommandStatus::None;
+        
+        return OnClick(e.x, e.y);
+    }
+
+    CommandStatus OnWheel(const MouseEvent& e) override {
+        return OnWheelInput(e.wheelDelta);
+    }
+}
+```
 
 **Base class:** CoordinatePickingCommand
 ```
@@ -112,21 +158,20 @@ protected:
 public:
     using ICommand::ICommand;
 
-    CommandStatus OnMouseMove(const MouseEvent& e) override {
-        if (!m_enableHover)
-            return CommandStatus::None;
+    // Map click → world point
+    CommandStatus OnClick(const vec2 pos) override {
+        glm::vec3 hitPoint = m_context.pickNearestPoint(pos.x, pos.y);
+        return OnPointPicked(hitPoint);
+    }
 
-        glm::vec3 hoverPoint = m_context.pickNearestPoint(e.x, e.y);
+    CommandStatus OnHoverInput(const vec2 pos) override {
+        if (!m_enableHover)
+            return CommandStatus::Running;
+
+        glm::vec3 hoverPoint = m_context.pickNearestPoint(pos.x, pos.y);
         return OnHoverPoint(hoverPoint);
     }
 
-    CommandStatus OnMouseUp(const MouseEvent& e) override {
-        if (e.button != mouseButton || e.gesture != GestureType::Click)
-            return CommandStatus::None;
-
-        glm::vec3 hitPoint = m_context.pickNearestPoint(e.x, e.y);
-        return OnPointPicked(hitPoint);
-    }
 };
 ```
 
