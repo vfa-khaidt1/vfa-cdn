@@ -114,7 +114,7 @@ public:
 
     CommandStatus OnMouseMove(const MouseEvent& e) override {
         if (!m_enableHover)
-            return CommandStatus::Running;
+            return CommandStatus::None;
 
         glm::vec3 hoverPoint = m_context.pickNearestPoint(e.x, e.y);
         return OnHoverPoint(hoverPoint);
