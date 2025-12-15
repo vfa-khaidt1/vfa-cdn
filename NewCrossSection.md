@@ -1,16 +1,45 @@
 
-Tasks break down:
-1. Define behavior + state machine (Center -> pick P1 -> pick P2-valid-opposite-side) + rubberband preview: 1 day
 
-2. Implement CrossSectionCommand logic (opposite-side validation, plane build, output result): 1 day
+### Description
+CrossSectionCommand lets the user define a cross-section line and generates a terrain profile from the point cloud.
+It returns a CuttingPlane (for CrossSection camera setup) and a list of profile points (highest points along P1 → P2) used to render the profile line.
 
-3. Implement profile extraction in CrossSectionManager (highest height along P1->P2, thickness filter): 2 days
+### Data it outputs (for rendering)
 
-4. Cross-section view update. Send CuttingPlane and CrossSectionResult to CrossSectionCanvas View: 2 day
+**CuttingPlane** (`m_activePlane`)  
+- `center`  
+- `point1`  
+- `point2`  
+- `normal`  
+- `extentSize`  
+- `zoomLevel`  
+- `thickness`  
+- `isBuilt`  
 
-5. Testing and Backup: 2 day
+**CrossSectionResult** (`m_lastResult`)  
+- `_points` (ordered points forming the terrain profile polyline: highest points along P1 -> P2 near the plane) 
 
-Total: 8 days
+```
+//  Data Structure for the Slicing Plane
+struct CuttingPlane {
+    glm::vec3 point1{0.0f, 0.0f, 0.0f};
+    glm::vec3 point2{0.0f, 0.0f, 0.0f};
+    glm::vec3 center{0.0f, 0.0f, 0.0f};
+    glm::vec3 normal{0.0f, 0.0f, 1.0f};
+
+    // width and height of the plane 
+    glm::vec2 extentSize = glm::vec2(100.0f, 80.0f);
+    float thickness;
+    float zoomLevel = 1.0f;
+    bool isBuilt; // isHaveEnought 
+};
+
+// Contain points data that in Cutting plane
+struct CrossSectionResult {     
+        std::vector<Point>  _points; // highest points along P1->P2
+};
+
+```
 
 ```mermaid
 classDiagram
@@ -70,14 +99,14 @@ classDiagram
         +std::vector~Point~ _points // profile Points, highest along the line P1 -> P2
     }
 
-    class CrossSectionManager {
+    class CrossSectionService {
         +ApplyCrossSection(plane: CuttingPlane, cloud: PointCloudModel): CrossSectionResult
         +UpdateCrossSectionView(data: CrossSectionResult, plane: CuttingPlane): void
     }
 
     class CommandContext {
         +RubberBandManager* rubberBand
-        +CrossSectionManager* crossSectionManager
+        +CrossSectionService* crossSectionService
         +GetPointCloud(): PointCloudModel*
     }
 
@@ -93,9 +122,9 @@ classDiagram
 
     CoordinatePickingCommand <|-- CrossSectionCommand
     CoordinatePickingCommand --> CommandContext
-    CrossSectionCommand --> CrossSectionManager
-    CrossSectionManager --> CrossSectionResult
-    CrossSectionManager --> CuttingPlane
+    CrossSectionCommand --> CrossSectionService
+    CrossSectionService --> CrossSectionResult
+    CrossSectionService --> CuttingPlane
 
 ```
 
@@ -110,10 +139,10 @@ private:
     CuttingPlane m_activePlane;
     CrossSectionResult m_lastResult;
     void ApplyCrossSection() {
-        m_lastResult = m_context.crossSectionManager->ApplyCrossSection(
+        m_lastResult = m_context.crossSectionService->ApplyCrossSection(
             m_activePlane, *m_context.GetPointCloud());
 
-        m_context.crossSectionManager->UpdateCrossSectionView(
+        m_context.crossSectionService->UpdateCrossSectionView(
             m_lastResult, m_activePlane);
     }
 protected:
@@ -177,26 +206,7 @@ public:
 ```
 
 ```
-//  Data Structure for the Slicing Plane
-struct CuttingPlane {
-    glm::vec3 point1{0.0f, 0.0f, 0.0f};
-    glm::vec3 point2{0.0f, 0.0f, 0.0f};
-    glm::vec3 center{0.0f, 0.0f, 0.0f};
-    glm::vec3 normal{0.0f, 0.0f, 1.0f};
-
-    // width and height of the plane 
-    glm::vec2 extentSize = glm::vec2(100.0f, 80.0f);
-    float thickness;
-    float zoomLevel = 1.0f;
-    bool isBuilt; // isHaveEnought 
-};
-
-// Contain points data that in Cutting plane
-struct CrossSectionResult {     
-        std::vector<Point>  _points; // highest points along P1->P2
-};
-
-class CrossSectionManager {
+class CrossSectionService {
 public:
      CrossSectionResult ApplyCrossSection(const CuttingPlane& plane,
                                          const PointCloudModel& sourceCloud)
@@ -219,10 +229,27 @@ private:
 // CommandContext remains the same
 struct CommandContext {
     RubberBandManager* rubberBand;
-    CrossSectionManager* crossSectionManager;
+    CrossSectionService* crossSectionService;
     PointCloudModel* GetPointCloud();
     glm::vec3 pickNearestPoint(double x, double y);
     //...
 };
 
 ```
+
+
+
+Tasks break down:
+1. Define behavior + class design: 1 day < Done
+
+2. Write code, Implement CrossSectionCommand logic (opposite-side validation, plane build): 1 day
+
+3. Implement profile extraction in CrossSectionService (highest height along P1->P2, thickness filter): 2 day
+
+4. Cross-section view update. Send CuttingPlane and CrossSectionResult to CrossSectionCanvas View: 1 day
+
+5. Render the profile lines, display infomations: 2 day
+
+6. Testing and Feedback Backup: 3 day
+
+Total: 10 days
