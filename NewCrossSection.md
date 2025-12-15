@@ -70,8 +70,6 @@ classDiagram
         +std::vector~Point~ _points // profile Points, highest along the line P1 -> P2
     }
 
-    class PointCloudModel
-
     class CrossSectionManager {
         +ApplyCrossSection(plane: CuttingPlane, cloud: PointCloudModel): CrossSectionResult
         +UpdateCrossSectionView(data: CrossSectionResult, plane: CuttingPlane): void
@@ -96,7 +94,6 @@ classDiagram
     CoordinatePickingCommand <|-- CrossSectionCommand
     CoordinatePickingCommand --> CommandContext
     CrossSectionCommand --> CrossSectionManager
-    CommandContext --> PointCloudModel
     CrossSectionManager --> CrossSectionResult
     CrossSectionManager --> CuttingPlane
 
