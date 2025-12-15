@@ -17,7 +17,7 @@ It returns a CuttingPlane (for CrossSection camera setup) and a list of profile 
 - `isBuilt`  
 
 **CrossSectionResult** (`m_lastResult`)  
-- `_points` (ordered points forming the terrain profile polyline: highest points along P1 -> P2 near the plane) 
+- `_points` (profile points to form the lines profile of the terrain: highest points along P1 -> P2 near the plane) 
 
 ```
 //  Data Structure for the Slicing Plane
@@ -239,7 +239,7 @@ struct CommandContext {
 
 
 
-Tasks break down:
+Tasks CrossSection break down:
 1. Define behavior + class design: 1 day < Done
 
 2. Write code, Implement CrossSectionCommand logic (opposite-side validation, plane build): 1 day
